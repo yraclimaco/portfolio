@@ -519,6 +519,32 @@
       from { transform: translateX(0); }
       to   { transform: translateX(-50%); }
     }
+
+    /* ── Pinned Project ─────────────────────────────────────── */
+    .pin-label {
+      font-size: 0.68rem; font-weight: 700; color: var(--accent);
+      display: flex; align-items: center; gap: 5px; margin-bottom: 10px;
+      letter-spacing: 0.05em; text-transform: uppercase;
+    }
+    .pin-wrap {
+      border-radius: 16px;
+      padding: 2px;
+      background: linear-gradient(180deg, #818cf8 0%, #a78bfa 25%, #fbbf24 50%, #f9a8d4 75%, #818cf8 100%);
+      background-size: 100% 300%;
+      animation: border-flow 3s linear infinite, pin-glow 2.5s ease-in-out infinite;
+    }
+    .pin-wrap .pcard {
+      border-color: transparent !important;
+      margin: 0;
+    }
+    @keyframes border-flow {
+      0%   { background-position: 0% 0%; }
+      100% { background-position: 0% 300%; }
+    }
+    @keyframes pin-glow {
+      0%,100% { box-shadow: 0 0 22px rgba(129,140,248,0.35), 0 0 44px rgba(129,140,248,0.12); }
+      50%     { box-shadow: 0 0 36px rgba(129,140,248,0.6),  0 0 72px rgba(251,191,36,0.2); }
+    }
   </style>
 </head>
 <body>
@@ -789,6 +815,33 @@
     <div class="s-rule"></div>
     <div class="pgrid fi">
 
+      <!-- TubeScope — PINNED FAVORITE -->
+      <div class="pin-wrap fi fi-d1">
+        <div class="pcard">
+          <div class="pin-label">📌 Pinned &mdash; Favorite Project</div>
+          <div class="phead">
+            <div>
+              <div class="pbadge">🏆 DS3 Cycle 1 · 3rd Place Showcase</div>
+              <div class="ptitle">TubeScope — Viral Trend Predictor</div>
+            </div>
+            <div class="plinks">
+              <a href="https://github.com/yraclimaco" target="_blank" rel="noopener" class="plink">GitHub ↗</a>
+            </div>
+          </div>
+          <ul class="pbulls">
+            <li>Selected for competitive DS3 project team (<b>top 16%</b>); awarded <b>3rd place out of 10 teams</b> at Showcase (Oct–Dec 2025).</li>
+            <li>Used Kaplan-Meier Survival Analysis to identify <b>83% viral trend drop-off</b>; built Random Forest classifier achieving <b>68% Recall and 3x Precision lift</b>.</li>
+            <li>Built automated Python pipeline to ingest data from YouTube Data API, powering live dashboard analytics.</li>
+            <li>Engineered features from raw video metadata and validated that Channel Authority outperformed metadata optimization as a predictor.</li>
+          </ul>
+          <div class="tags">
+            <span class="tag">Python</span><span class="tag">Pandas</span><span class="tag">Scikit-learn</span>
+            <span class="tag">Kaplan-Meier</span><span class="tag">YouTube API</span>
+            <span class="tag">Random Forest</span><span class="tag">Plotly</span>
+          </div>
+        </div>
+      </div>
+
       <!-- CCE Solar ETL -->
       <div class="pcard fi fi-d4">
         <div class="phead">
@@ -831,30 +884,6 @@
           <span class="tag">Python</span><span class="tag">Pandas</span><span class="tag">Scikit-learn</span>
           <span class="tag">Plotly</span><span class="tag">Random Forest</span>
           <span class="tag">Hypothesis Testing</span><span class="tag">GitHub Pages</span>
-        </div>
-      </div>
-
-      <!-- TubeScope -->
-      <div class="pcard fi fi-d2">
-        <div class="phead">
-          <div>
-            <div class="pbadge">🏆 DS3 Cycle 1 · 3rd Place Showcase</div>
-            <div class="ptitle">TubeScope — Viral Trend Predictor</div>
-          </div>
-          <div class="plinks">
-            <a href="https://github.com/yraclimaco" target="_blank" rel="noopener" class="plink">GitHub ↗</a>
-          </div>
-        </div>
-        <ul class="pbulls">
-          <li>Selected for competitive DS3 project team (<b>top 16%</b>); awarded <b>3rd place out of 10 teams</b> at Showcase (Oct–Dec 2025).</li>
-          <li>Used Kaplan-Meier Survival Analysis to identify <b>83% viral trend drop-off</b>; built Random Forest classifier achieving <b>68% Recall and 3x Precision lift</b>.</li>
-          <li>Built automated Python pipeline to ingest data from YouTube Data API, powering live dashboard analytics.</li>
-          <li>Engineered features from raw video metadata and validated that Channel Authority outperformed metadata optimization as a predictor.</li>
-        </ul>
-        <div class="tags">
-          <span class="tag">Python</span><span class="tag">Pandas</span><span class="tag">Scikit-learn</span>
-          <span class="tag">Kaplan-Meier</span><span class="tag">YouTube API</span>
-          <span class="tag">Random Forest</span><span class="tag">Plotly</span>
         </div>
       </div>
 
@@ -951,7 +980,8 @@
       </div>
     </div>
     <div class="learning-bar fi" style="margin-top:16px;">
-      <strong>Currently sharpening:</strong> &nbsp;;SQL (DataLemur daily problems) · Tableau · Excel (XLOOKUP, pivot tables)
+      <strong>Currently sharpening:</strong> &nbsp;SQL (DataLemur daily problems) · Tableau · Excel (XLOOKUP, pivot tables)
+    </div>
   </div>
 </section>
 
