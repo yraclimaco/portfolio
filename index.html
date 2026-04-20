@@ -545,6 +545,42 @@
       0%,100% { box-shadow: 0 0 22px rgba(129,140,248,0.35), 0 0 44px rgba(129,140,248,0.12); }
       50%     { box-shadow: 0 0 36px rgba(129,140,248,0.6),  0 0 72px rgba(251,191,36,0.2); }
     }
+
+    /* ── Resume Section ─────────────────────────────────────── */
+    .resume-top { display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:16px; margin-bottom:40px; }
+    .resume-top .s-title { margin-bottom:0; }
+    .resume-doc {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 40px 44px; max-width: 820px; margin: 0 auto;
+    }
+    .rdoc-header { text-align: center; margin-bottom: 28px; padding-bottom: 22px; border-bottom: 1px solid var(--border); }
+    .rdoc-name { font-size: 1.8rem; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 10px; }
+    .rdoc-contacts { display: flex; justify-content: center; flex-wrap: wrap; gap: 4px 16px; font-size: 0.78rem; color: var(--text-muted); }
+    .rdoc-contacts a { color: var(--text-muted); }
+    .rdoc-contacts a:hover { color: var(--accent); opacity: 1; }
+    .rdoc-section { margin-bottom: 26px; }
+    .rdoc-section-title {
+      font-size: 0.67rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--accent); border-bottom: 1px solid var(--border);
+      padding-bottom: 6px; margin-bottom: 14px;
+    }
+    .rdoc-item { margin-bottom: 14px; }
+    .rdoc-item-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+    .rdoc-item-title { font-size: 0.88rem; font-weight: 700; }
+    .rdoc-item-sub { font-size: 0.81rem; color: var(--accent); font-style: italic; }
+    .rdoc-item-meta { font-size: 0.74rem; color: var(--text-muted); white-space: nowrap; flex-shrink: 0; }
+    .rdoc-bullets { list-style: none; margin-top: 5px; }
+    .rdoc-bullets li {
+      font-size: 0.81rem; color: var(--text-muted); line-height: 1.65;
+      padding-left: 14px; position: relative; margin-bottom: 3px;
+    }
+    .rdoc-bullets li::before { content: '•'; position: absolute; left: 0; color: var(--accent); }
+    .rdoc-bullets li b { color: var(--text); font-weight: 600; }
+    .rdoc-skill-row { display: flex; gap: 6px; font-size: 0.81rem; margin-bottom: 5px; flex-wrap: wrap; }
+    .rdoc-skill-row b { color: var(--text); font-weight: 600; flex-shrink: 0; }
+    .rdoc-skill-row span { color: var(--text-muted); }
+    .resume-actions { display: flex; justify-content: center; margin-top: 28px; }
+    @media (max-width: 600px) { .resume-doc { padding: 24px 20px; } }
   </style>
 </head>
 <body>
@@ -558,6 +594,7 @@
       <a href="#experience" data-section="experience">Experience</a>
       <a href="#projects" data-section="projects">Projects</a>
       <a href="#skills" data-section="skills">Skills</a>
+      <a href="#resume" data-section="resume">Resume</a>
       <a href="#contact" data-section="contact">Contact</a>
       <button class="theme-btn" id="themeBtn">
         <span id="themeIco">☀️</span>
@@ -981,6 +1018,147 @@
     </div>
     <div class="learning-bar fi" style="margin-top:16px;">
       <strong>Currently sharpening:</strong> &nbsp;SQL (DataLemur daily problems) · Tableau · Excel (XLOOKUP, pivot tables)
+    </div>
+  </div>
+</section>
+
+<!-- ═══ RESUME ═══════════════════════════════════════════════ -->
+<section id="resume">
+  <div class="container">
+    <div class="resume-top">
+      <div>
+        <div class="s-label">Resume</div>
+        <h2 class="s-title">Full résumé</h2>
+      </div>
+      <a href="Yra_Climaco_ResumeV4.pdf" download class="btn-p">⬇&nbsp;Download PDF</a>
+    </div>
+    <div class="s-rule"></div>
+
+    <div class="resume-doc fi">
+
+      <!-- Header -->
+      <div class="rdoc-header">
+        <div class="rdoc-name">Yra Climaco</div>
+        <div class="rdoc-contacts">
+          <span>661-207-1800</span>
+          <a href="mailto:climacoyra@gmail.com">climacoyra@gmail.com</a>
+          <a href="https://www.linkedin.com/in/yra-climaco/" target="_blank" rel="noopener">linkedin.com/in/yra-climaco</a>
+          <a href="https://github.com/yraclimaco" target="_blank" rel="noopener">github.com/yraclimaco</a>
+        </div>
+      </div>
+
+      <!-- Education -->
+      <div class="rdoc-section">
+        <div class="rdoc-section-title">Education</div>
+        <div class="rdoc-item">
+          <div class="rdoc-item-head">
+            <div class="rdoc-item-title">University of California, San Diego</div>
+            <div class="rdoc-item-meta">San Diego, CA</div>
+          </div>
+          <div class="rdoc-item-head">
+            <div class="rdoc-item-sub">Bachelor of Science in Data Science, Minor in Business Analytics</div>
+            <div class="rdoc-item-meta">Sept. 2024 – June 2028</div>
+          </div>
+          <ul class="rdoc-bullets">
+            <li><b>GPA:</b> 3.8 / 4.0 &nbsp;|&nbsp; <b>Activities:</b> Data Science Student Society (DS3)</li>
+            <li><b>Relevant Coursework:</b> Practice of Data Science · Data Science with AI · Applied Statistical Data Analysis and Inference · Statistical Methods · Theoretical Foundations of Data Science · Programming for Data Science · Applied Market Research · Linear Algebra · Data Structures &amp; Algorithms</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Experience -->
+      <div class="rdoc-section">
+        <div class="rdoc-section-title">Experience</div>
+
+        <div class="rdoc-item">
+          <div class="rdoc-item-head">
+            <div class="rdoc-item-title">Data Science Intern</div>
+            <div class="rdoc-item-meta">San Diego, CA</div>
+          </div>
+          <div class="rdoc-item-head">
+            <div class="rdoc-item-sub">Center for Community Energy (CCE)</div>
+            <div class="rdoc-item-meta">Feb. 2026 – Present</div>
+          </div>
+          <ul class="rdoc-bullets">
+            <li>Developing a commercial property database for the "Move Now" renewable energy initiative targeting solar outreach across San Diego County.</li>
+            <li>Built full ETL pipeline in PostgreSQL to ingest, clean, and merge three San Diego public datasets; engineered a unified solar outreach table using CTEs, JOINs, CASE WHEN logic, and UNION ALL.</li>
+            <li>Surfaced tax-exempt organizations absent from business tax data by applying LEFT JOIN logic, expanding the outreach target pool beyond standard filters.</li>
+          </ul>
+        </div>
+
+        <div class="rdoc-item">
+          <div class="rdoc-item-head">
+            <div class="rdoc-item-title">LA County Pool Lifeguard &amp; Swim Instructor</div>
+            <div class="rdoc-item-meta">Santa Clarita, CA</div>
+          </div>
+          <div class="rdoc-item-head">
+            <div class="rdoc-item-sub">Castaic Aquatic Center</div>
+            <div class="rdoc-item-meta">Feb. 2023 – Present</div>
+          </div>
+          <ul class="rdoc-bullets">
+            <li>Instructed swim lessons to children and adults, breaking down complex technique into clear, progressive steps for non-technical audiences.</li>
+            <li>Coordinate with a team of guards to maintain 100% coverage of high-traffic zones, resulting in zero safety incidents.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Projects -->
+      <div class="rdoc-section">
+        <div class="rdoc-section-title">Projects</div>
+
+        <div class="rdoc-item">
+          <div class="rdoc-item-head">
+            <div class="rdoc-item-title">Snowball Effect Analysis in Professional LoL &nbsp;<span style="font-weight:500;font-size:0.76rem;color:var(--text-muted);">Python · Pandas · Scikit-learn · Plotly</span></div>
+            <div class="rdoc-item-meta">Mar. 2026</div>
+          </div>
+          <ul class="rdoc-bullets">
+            <li>Analyzed 9,236 professional matches from the 2025 season to investigate whether early game advantages predict match outcomes.</li>
+            <li>Conducted permutation test confirming teams with positive gold differential at 15 minutes win at significantly higher rates (p &lt; 0.001).</li>
+            <li>Built Random Forest binary classifier on 15-minute game data achieving 73.6% test accuracy, outperforming a 50% random baseline by nearly 24%.</li>
+            <li>Deployed full data science lifecycle as interactive report on GitHub Pages including EDA, missingness analysis, hypothesis testing, and fairness analysis.</li>
+          </ul>
+        </div>
+
+        <div class="rdoc-item">
+          <div class="rdoc-item-head">
+            <div class="rdoc-item-title">TubeScope — Viral Trend Predictor &nbsp;<span style="font-weight:500;font-size:0.76rem;color:var(--text-muted);">Python · Pandas · Scikit-learn · Plotly</span></div>
+            <div class="rdoc-item-meta">Oct. – Dec. 2025</div>
+          </div>
+          <ul class="rdoc-bullets">
+            <li>Selected for competitive DS3 project team (top 16%); awarded 3rd place out of 10 teams at Showcase.</li>
+            <li>Analyzed early engagement patterns using Kaplan-Meier Survival Analysis to identify 83% viral trend drop-off; built Random Forest classifier achieving 68% Recall and 3x Precision lift.</li>
+            <li>Built automated Python pipeline to ingest data from YouTube Data API, powering live dashboard analytics.</li>
+            <li>Engineered predictive features from raw video metadata and validated the model, finding Channel Authority outperformed metadata optimization.</li>
+          </ul>
+        </div>
+
+        <div class="rdoc-item">
+          <div class="rdoc-item-head">
+            <div class="rdoc-item-title">Uber &amp; Lyft Fare Prediction Model &nbsp;<span style="font-weight:500;font-size:0.76rem;color:var(--text-muted);">Python · Pandas · Scikit-learn · NumPy · Matplotlib · Seaborn</span></div>
+            <div class="rdoc-item-meta">Sept. 2025</div>
+          </div>
+          <ul class="rdoc-bullets">
+            <li>Analyzed 600k+ ride-share transactions using Linear Regression (R² = 0.93) to model fare pricing patterns.</li>
+            <li>Engineered time-based features identifying Surge Multiplier and Distance as primary cost drivers.</li>
+            <li>Performed residual analysis revealing degraded accuracy on Luxury tier rides due to class imbalance.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Technical Skills -->
+      <div class="rdoc-section" style="margin-bottom:0;">
+        <div class="rdoc-section-title">Technical Skills</div>
+        <div class="rdoc-skill-row"><b>Languages:</b><span>Python, SQL (PostgreSQL)</span></div>
+        <div class="rdoc-skill-row"><b>Data Analysis:</b><span>Pandas, NumPy, ETL Pipelines, Hypothesis Testing, Permutation Testing</span></div>
+        <div class="rdoc-skill-row"><b>Machine Learning:</b><span>Scikit-learn, Random Forests, Survival Analysis (Kaplan-Meier), Classification</span></div>
+        <div class="rdoc-skill-row"><b>Visualization:</b><span>Tableau, Matplotlib, Seaborn, Plotly</span></div>
+        <div class="rdoc-skill-row"><b>Tools:</b><span>Git, Jupyter Notebooks, VS Code, Excel</span></div>
+      </div>
+
+    </div>
+
+    <div class="resume-actions">
+      <a href="Yra_Climaco_ResumeV4.pdf" download class="btn-p">⬇&nbsp;Download PDF</a>
     </div>
   </div>
 </section>
