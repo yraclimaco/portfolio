@@ -1,542 +1,92 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Yra Climaco — Data Science</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            bg:      '#0d0d14',
+            surface: '#111119',
+            card:    '#171723',
+            bdr:     '#252536',
+            txt:     '#e2e8f0',
+            muted:   '#8892a4',
+            accent:  '#818cf8',
+            cyan:    '#22d3ee',
+            gold:    '#fbbf24',
+            violet:  '#a78bfa',
+          },
+          fontFamily: {
+            sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+            mono: ['JetBrains Mono', 'Courier New', 'monospace'],
+          },
+        }
+      }
+    }
+  </script>
   <style>
-    /* ── Variables ──────────────────────────────────────────── */
-    :root[data-theme="dark"] {
-      --bg:          #0d0d14;
-      --bg-surface:  #111119;
-      --bg-card:     #171723;
-      --border:      #252536;
-      --text:        #e2e8f0;
-      --text-muted:  #8892a4;
-      --accent:      #818cf8;
-      --accent-dim:  rgba(129,140,248,0.12);
-      --accent-ring: rgba(129,140,248,0.28);
-      --nav-bg:      rgba(13,13,20,0.82);
-      --shadow:      0 8px 32px rgba(0,0,0,0.45);
-      --tag-bg:      rgba(129,140,248,0.1);
-      --tag-border:  rgba(129,140,248,0.25);
-    }
-    :root[data-theme="light"] {
-      --bg:          #f5f6fa;
-      --bg-surface:  #ffffff;
-      --bg-card:     #ffffff;
-      --border:      #e2e8f0;
-      --text:        #1e293b;
-      --text-muted:  #64748b;
-      --accent:      #4f46e5;
-      --accent-dim:  rgba(79,70,229,0.07);
-      --accent-ring: rgba(79,70,229,0.2);
-      --nav-bg:      rgba(245,246,250,0.85);
-      --shadow:      0 8px 32px rgba(0,0,0,0.09);
-      --tag-bg:      rgba(79,70,229,0.07);
-      --tag-border:  rgba(79,70,229,0.18);
-    }
-
-    /* ── Reset ──────────────────────────────────────────────── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
-    body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.6;
-      transition: background 0.3s, color 0.3s;
-    }
-    a { color: var(--accent); text-decoration: none; }
-    a:hover { opacity: 0.85; }
+    body { background: #0d0d14; color: #e2e8f0; font-family: 'Inter', sans-serif; line-height: 1.6; overflow-x: hidden; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #0d0d14; }
+    ::-webkit-scrollbar-thumb { background: #252536; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #818cf8; }
 
-    .container { max-width: 940px; margin: 0 auto; padding: 0 24px; }
+    /* ── Tab Transition ───────────────────────────────────── */
+    @keyframes tabFadeIn {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .tab-enter { animation: tabFadeIn 0.42s cubic-bezier(0.22,1,0.36,1) forwards; }
 
-    /* ── Nav ────────────────────────────────────────────────── */
-    nav {
-      position: fixed; top: 0; width: 100%; z-index: 100;
-      background: var(--nav-bg); backdrop-filter: blur(14px);
-      border-bottom: 1px solid var(--border); transition: background 0.3s;
-    }
-    .nav-inner {
-      max-width: 940px; margin: 0 auto; padding: 0 24px;
-      display: flex; justify-content: space-between; align-items: center; height: 58px;
-    }
-    .nav-logo { font-weight: 800; font-size: 1.05rem; color: var(--text); letter-spacing: -0.03em; }
-    .nav-logo span { color: var(--accent); }
-    .nav-links { display: flex; gap: 6px; align-items: center; }
-    .nav-links a {
-      font-size: 0.82rem; font-weight: 500; color: var(--text-muted);
-      padding: 5px 10px; border-radius: 6px; transition: all 0.2s;
-    }
-    .nav-links a:hover, .nav-links a.active { color: var(--text); background: var(--bg-card); opacity: 1; }
-    .theme-btn {
-      background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px;
-      padding: 5px 11px; cursor: pointer; font-size: 0.8rem; color: var(--text-muted);
-      display: flex; align-items: center; gap: 5px; transition: all 0.2s; font-family: inherit; margin-left: 6px;
-    }
-    .theme-btn:hover { border-color: var(--accent); color: var(--accent); }
-
-    /* ── Section scaffold ───────────────────────────────────── */
-    section { padding: 90px 0; }
-    .s-label {
-      font-size: 0.7rem; font-weight: 700; letter-spacing: 0.13em;
-      text-transform: uppercase; color: var(--accent); margin-bottom: 6px;
-    }
-    .s-title {
-      font-size: clamp(1.5rem, 3vw, 2rem); font-weight: 800;
-      letter-spacing: -0.025em; color: var(--text); margin-bottom: 40px;
-    }
-    .s-rule { width: 100%; height: 1px; background: var(--border); margin-bottom: 52px; }
-
-    /* ── Scroll fade-in ─────────────────────────────────────── */
-    .fi { opacity: 0; transform: translateY(24px); transition: opacity 0.6s ease, transform 0.6s ease; }
-    .fi.vis { opacity: 1; transform: none; }
-    .fi-d1 { transition-delay: 0.1s; }
-    .fi-d2 { transition-delay: 0.2s; }
-    .fi-d3 { transition-delay: 0.3s; }
-    .fi-d4 { transition-delay: 0.4s; }
-
-    /* ── Hero ───────────────────────────────────────────────── */
-    #hero {
-      min-height: 100vh; display: flex; align-items: center; padding-top: 58px;
-      position: relative; overflow: hidden;
-    }
-    #hero::before {
-      content: '';
-      position: absolute; top: -200px; right: -200px;
-      width: 600px; height: 600px; border-radius: 50%;
-      background: radial-gradient(circle, var(--accent-dim) 0%, transparent 70%);
-      pointer-events: none;
-    }
-    .hero-wrap { padding: 72px 0 80px; width: 100%; }
-    .hero-grid { display: grid; grid-template-columns: 1fr auto; gap: 48px; align-items: center; }
-    .hero-eyebrow {
-      display: inline-flex; align-items: center; gap: 8px;
-      font-size: 0.75rem; font-weight: 700; letter-spacing: 0.12em;
-      text-transform: uppercase; color: var(--accent); margin-bottom: 16px;
-    }
-    .hero-eyebrow::before { content: ''; display: block; width: 28px; height: 2px; background: var(--accent); }
-    h1.hero-name {
-      font-size: clamp(2.5rem, 6vw, 4rem); font-weight: 800;
-      letter-spacing: -0.035em; color: var(--text); margin-bottom: 16px; line-height: 1.08;
-    }
-    .hero-sub {
-      font-size: clamp(0.95rem, 2vw, 1.1rem); color: var(--text-muted);
-      max-width: 520px; line-height: 1.8; margin-bottom: 32px;
-    }
-    .hero-sub strong { color: var(--text); font-weight: 600; }
-    .hero-cta { display: flex; gap: 10px; flex-wrap: wrap; }
-    .btn-p {
-      background: var(--accent); color: #fff; border: none;
-      padding: 10px 22px; border-radius: 8px; font-size: 0.88rem; font-weight: 600;
-      cursor: pointer; transition: all 0.2s; text-decoration: none;
-      display: inline-flex; align-items: center; gap: 6px; font-family: inherit;
-    }
-    .btn-p:hover { filter: brightness(1.1); color: #fff; opacity: 1; transform: translateY(-2px); box-shadow: 0 8px 24px var(--accent-dim); }
-    .btn-o {
-      background: transparent; color: var(--text); border: 1px solid var(--border);
-      padding: 10px 22px; border-radius: 8px; font-size: 0.88rem; font-weight: 600;
-      cursor: pointer; transition: all 0.2s; text-decoration: none;
-      display: inline-flex; align-items: center; gap: 6px; font-family: inherit;
-    }
-    .btn-o:hover { border-color: var(--accent); color: var(--accent); opacity: 1; transform: translateY(-2px); }
-    .hero-socials { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 40px; }
-    .soc-link {
-      display: inline-flex; align-items: center; gap: 7px; font-size: 0.8rem;
-      color: var(--text-muted); border: 1px solid var(--border); padding: 6px 13px;
-      border-radius: 7px; transition: all 0.2s;
-    }
-    .soc-link:hover { color: var(--accent); border-color: var(--accent); opacity: 1; }
-
-    /* ── Hero Photo ─────────────────────────────────────────── */
-    .hero-photo-wrap { position: relative; flex-shrink: 0; }
-    .hero-photo-ring {
-      width: 200px; height: 200px; border-radius: 50%;
-      padding: 3px;
-      background: linear-gradient(135deg, var(--accent) 0%, transparent 60%);
-      position: relative;
-    }
-    .hero-photo-ring::before {
-      content: '';
-      position: absolute; inset: -4px; border-radius: 50%;
-      background: linear-gradient(135deg, var(--accent-ring), transparent 60%);
-      animation: spin-ring 8s linear infinite;
-    }
+    /* ── Spin ring ────────────────────────────────────────── */
     @keyframes spin-ring {
       from { transform: rotate(0deg); }
       to   { transform: rotate(360deg); }
     }
-    .hero-photo {
-      width: 194px; height: 194px; border-radius: 50%;
-      overflow: hidden; border: 3px solid var(--bg); position: relative; z-index: 1;
-    }
-    .hero-photo img { width: 100%; height: 100%; object-fit: cover; object-position: center top; display: block; }
-    .photo-placeholder {
-      width: 100%; height: 100%;
-      background: var(--bg-card);
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      gap: 6px; color: var(--text-muted); font-size: 0.72rem; text-align: center;
-    }
-    .photo-placeholder span { font-size: 2.5rem; }
+    .spin-ring { animation: spin-ring 8s linear infinite; }
 
-    /* ── About ──────────────────────────────────────────────── */
-    .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 52px; align-items: start; }
-    .about-text p { color: var(--text-muted); line-height: 1.85; margin-bottom: 14px; font-size: 0.91rem; }
-    .about-text p strong { color: var(--text); }
-    .stats-row { display: flex; gap: 24px; margin-top: 28px; flex-wrap: wrap; }
-    .stat { cursor: default; }
-    .stat-n {
-      font-size: 2rem; font-weight: 800; color: var(--accent);
-      letter-spacing: -0.03em; line-height: 1; transition: transform 0.2s;
-    }
-    .stat:hover .stat-n { transform: scale(1.05); }
-    .stat-l { font-size: 0.7rem; color: var(--text-muted); margin-top: 3px; font-weight: 500; }
-    .edu-card {
-      background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 22px;
-      transition: border-color 0.2s;
-    }
-    .edu-card:hover { border-color: var(--accent-ring); }
-    .edu-card h3 { font-size: 0.96rem; font-weight: 700; margin-bottom: 3px; }
-    .edu-card .degree { font-size: 0.82rem; color: var(--accent); margin-bottom: 6px; }
-    .edu-card .meta { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 10px; }
-    .coursework { font-size: 0.75rem; color: var(--text-muted); line-height: 1.65; }
-    .coursework b { font-weight: 600; }
+    /* ── HUD ──────────────────────────────────────────────── */
+    @keyframes hud-fadein { from { opacity:0; } to { opacity:1; } }
+    .hud-appear { animation: hud-fadein 1s ease forwards; }
 
-    /* ── Hobbies / Beyond the Data ──────────────────────────── */
-    .hobbies-label { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin: 26px 0 14px; }
-    .hobbies-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-    .hcard {
-      background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px;
-      padding: 18px 14px 16px; text-align: center; transition: all 0.28s; cursor: default; overflow: hidden;
-      position: relative;
-    }
-    .hcard::before {
-      content: ''; position: absolute; inset: 0; border-radius: 12px;
-      background: var(--accent-dim); opacity: 0; transition: opacity 0.28s;
-    }
-    .hcard:hover { border-color: var(--accent-ring); transform: translateY(-5px); box-shadow: var(--shadow); }
-    .hcard:hover::before { opacity: 1; }
-    .hcard h4 { font-size: 0.82rem; font-weight: 700; margin-bottom: 4px; position: relative; }
-    .hcard p { font-size: 0.72rem; color: var(--text-muted); line-height: 1.45; position: relative; }
-    .hcard .hem { font-size: 1.9rem; margin-bottom: 9px; display: block; position: relative; }
-
-    /* BJJ belt */
-    .belt { display: flex; justify-content: center; gap: 3px; margin-top: 8px; position: relative; }
-    .bs { width: 8px; height: 4px; border-radius: 2px; background: var(--accent); opacity: 0.5; transition: opacity 0.3s; }
-    .hcard:hover .bs { opacity: 1; }
-
-    /* Card magic flip */
-    .hcard.magic { perspective: 700px; }
-    .magic-inner { transition: transform 0.65s; transform-style: preserve-3d; position: relative; min-height: 100px; }
-    .hcard.magic:hover .magic-inner { transform: rotateY(180deg); }
-    .mf, .mb { backface-visibility: hidden; }
-    .mb { position: absolute; top: 0; left: 0; right: 0; transform: rotateY(180deg); padding-top: 4px; }
-
-    /* Skate roll */
-    @keyframes roll { 0%,100% { transform: translateX(-5px) rotate(-8deg); } 50% { transform: translateX(5px) rotate(8deg); } }
-    .skate-em { display: inline-block; animation: roll 2s ease-in-out infinite; font-size: 1.9rem; }
-
-    /* One Piece */
-    @keyframes bounce-op { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
-    .op-em { display: inline-block; animation: bounce-op 1.8s ease-in-out infinite; font-size: 1.9rem; }
-
-    /* Gaming pulse */
-    @keyframes pulse-g { 0%,100% { filter: brightness(1); } 50% { filter: brightness(1.4); } }
-    .game-em { display: inline-block; animation: pulse-g 2.5s ease-in-out infinite; font-size: 1.9rem; }
-
-    /* ── Experience ─────────────────────────────────────────── */
-    .tline { display: flex; flex-direction: column; }
-    .titem { display: grid; grid-template-columns: 108px 1fr; gap: 28px; padding-bottom: 44px; position: relative; }
-    .titem:not(:last-child)::after {
-      content: ''; position: absolute;
-      left: calc(108px + 28px + 11px - 1px);
-      top: 14px; bottom: 0; width: 1px; background: var(--border);
-    }
-    .tdate { font-size: 0.74rem; color: var(--text-muted); text-align: right; padding-top: 2px; line-height: 1.5; }
-    .tbadge {
-      display: inline-block; margin-top: 5px;
-      background: var(--accent-dim); border: 1px solid var(--accent-ring);
-      color: var(--accent); font-size: 0.65rem; font-weight: 700;
-      padding: 2px 7px; border-radius: 4px; letter-spacing: 0.04em;
-    }
-    .tbody { padding-left: 22px; border-left: 2px solid var(--border); position: relative; }
-    .tbody::before {
-      content: ''; position: absolute; left: -7px; top: 3px;
-      width: 12px; height: 12px; border-radius: 50%;
-      background: var(--accent); border: 2px solid var(--bg);
-    }
-    .trole { font-size: 0.96rem; font-weight: 700; }
-    .tco { font-size: 0.82rem; color: var(--accent); margin: 2px 0 12px; }
-    .tbulls { list-style: none; }
-    .tbulls li {
-      font-size: 0.84rem; color: var(--text-muted); line-height: 1.7;
-      padding-left: 16px; position: relative; margin-bottom: 5px;
-    }
-    .tbulls li::before { content: '→'; position: absolute; left: 0; color: var(--accent); font-size: 0.7rem; top: 4px; }
-
-    /* ── Projects ───────────────────────────────────────────── */
-    .pgrid { display: grid; grid-template-columns: 1fr; gap: 16px; }
-    .pcard {
-      background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px;
-      padding: 26px 28px; transition: all 0.25s; position: relative; overflow: hidden;
-    }
-    .pcard::after {
-      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
-      background: linear-gradient(90deg, var(--accent) 0%, transparent 65%);
-      opacity: 0; transition: opacity 0.25s;
-    }
-    .pcard:hover { border-color: var(--accent-ring); box-shadow: var(--shadow); transform: translateY(-2px); }
-    .pcard:hover::after { opacity: 1; }
-    .phead { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; margin-bottom: 14px; }
-    .pbadge { font-size: 0.68rem; font-weight: 700; color: var(--accent); letter-spacing: 0.07em; text-transform: uppercase; margin-bottom: 4px; }
-    .ptitle { font-size: 1rem; font-weight: 700; color: var(--text); }
-    .plinks { display: flex; gap: 7px; flex-shrink: 0; }
-    .plink {
-      font-size: 0.75rem; color: var(--text-muted); border: 1px solid var(--border);
-      padding: 4px 10px; border-radius: 6px; transition: all 0.2s; white-space: nowrap;
-    }
-    .plink:hover { color: var(--accent); border-color: var(--accent); opacity: 1; }
-    .pbulls { list-style: none; margin-bottom: 16px; }
-    .pbulls li {
-      font-size: 0.84rem; color: var(--text-muted); line-height: 1.7;
-      padding-left: 14px; position: relative; margin-bottom: 3px;
-    }
-    .pbulls li::before { content: '·'; position: absolute; left: 0; color: var(--accent); font-weight: 900; font-size: 1rem; line-height: 1.5; }
-    .pbulls li b { color: var(--text); font-weight: 600; }
-
-    /* ── Tags ───────────────────────────────────────────────── */
-    .tags { display: flex; flex-wrap: wrap; gap: 6px; }
-    .tag {
-      font-size: 0.71rem; font-weight: 500;
-      background: var(--tag-bg); color: var(--accent);
-      border: 1px solid var(--tag-border);
-      padding: 3px 9px; border-radius: 20px; transition: all 0.18s; cursor: default;
-    }
-    .tag:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
-
-    /* ── Skills ─────────────────────────────────────────────── */
-    .sgrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
-    .sgroup {
-      background: var(--bg-card); border: 1px solid var(--border);
-      border-radius: 12px; padding: 20px 22px; transition: border-color 0.2s;
-    }
-    .sgroup:hover { border-color: var(--accent-ring); }
-    .sgroup-lbl { font-size: 0.68rem; font-weight: 700; color: var(--accent); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 12px; }
-    .stags { display: flex; flex-wrap: wrap; gap: 7px; }
-    .stag {
-      font-size: 0.79rem; background: var(--bg); border: 1px solid var(--border);
-      color: var(--text-muted); padding: 4px 12px; border-radius: 6px;
-      transition: all 0.18s; cursor: default;
-    }
-    .stag:hover { border-color: var(--accent-ring); color: var(--text); }
-    .learning-bar {
-      margin-top: 16px; background: var(--accent-dim); border: 1px solid var(--accent-ring);
-      border-radius: 10px; padding: 14px 20px; font-size: 0.84rem; color: var(--text-muted);
-    }
-    .learning-bar strong { color: var(--accent); }
-
-    /* ── Contact ────────────────────────────────────────────── */
-    #contact { background: var(--bg-surface); border-top: 1px solid var(--border); }
-    .cgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 52px; align-items: center; }
-    .ctxt h2 { font-size: 1.7rem; font-weight: 800; letter-spacing: -0.025em; margin-bottom: 10px; }
-    .ctxt p { color: var(--text-muted); font-size: 0.9rem; line-height: 1.75; }
-    .clinks { display: flex; flex-direction: column; gap: 10px; }
-    .citem {
-      display: flex; align-items: center; gap: 14px; padding: 14px 18px;
-      background: var(--bg-card); border: 1px solid var(--border);
-      border-radius: 10px; transition: all 0.22s; color: inherit;
-    }
-    .citem:hover { border-color: var(--accent); transform: translateX(4px); opacity: 1; }
-    .citem:hover .cv { color: var(--accent); }
-    .ci { font-size: 1.1rem; }
-    .cl { font-size: 0.7rem; color: var(--text-muted); }
-    .cv { font-weight: 600; color: var(--text); font-size: 0.84rem; transition: color 0.2s; }
-
-    /* ── Footer ─────────────────────────────────────────────── */
-    footer { border-top: 1px solid var(--border); padding: 22px 24px; text-align: center; font-size: 0.78rem; color: var(--text-muted); }
-
-    /* ── Mobile ─────────────────────────────────────────────── */
-    @media (max-width: 720px) {
-      .nav-links a:not(.theme-btn) { display: none; }
-      .hero-grid { grid-template-columns: 1fr; }
-      .hero-photo-wrap { display: flex; justify-content: center; order: -1; }
-      .about-grid { grid-template-columns: 1fr; gap: 36px; }
-      .hobbies-grid { grid-template-columns: repeat(2, 1fr); }
-      .sgrid { grid-template-columns: 1fr; }
-      .cgrid { grid-template-columns: 1fr; gap: 36px; }
-      .titem { grid-template-columns: 1fr; gap: 6px; }
-      .tdate { text-align: left; }
-      .titem:not(:last-child)::after { display: none; }
-      section { padding: 64px 0; }
-    }
-    @media (max-width: 480px) {
-      .hero-socials, .hero-cta { flex-direction: column; align-items: flex-start; }
-      .phead { flex-direction: column; gap: 8px; }
-      .hobbies-grid { grid-template-columns: 1fr; }
-    }
-
-    /* ══════════════════════════════════════════════════════════
-       HERO VISUAL — Canvas + HUD + Waves
-    ══════════════════════════════════════════════════════════ */
-
-    /* Canvas star field */
-    #heroCanvas {
-      position: absolute; inset: 0; z-index: 0;
-      pointer-events: none; display: block;
-    }
-
-    /* Keep hero content above canvas */
-    #hero > .container { position: relative; z-index: 2; }
-
-    /* ── HUD Overlay ──────────────────────────────────────── */
-    .hud-overlay {
-      position: absolute; inset: 0; z-index: 1;
-      pointer-events: none; overflow: hidden;
-    }
-
-    /* Corner brackets */
-    .hud-corner {
-      position: absolute; width: 22px; height: 22px;
-      opacity: 0; animation: hud-fadein 1.2s ease forwards;
-    }
-    .hud-corner::before, .hud-corner::after {
-      content: ''; position: absolute; background: var(--accent);
-      opacity: 0.55;
-    }
-    .hud-corner::before { width: 2px; height: 100%; }
-    .hud-corner::after  { width: 100%; height: 2px; }
-
-    .hud-tl { top: 68px; left: 18px; animation-delay: 0.2s; }
-    .hud-tl::before { top: 0; left: 0; }
-    .hud-tl::after  { top: 0; left: 0; }
-
-    .hud-tr { top: 68px; right: 18px; animation-delay: 0.4s; }
-    .hud-tr::before { top: 0; right: 0; }
-    .hud-tr::after  { top: 0; right: 0; }
-
-    .hud-bl { bottom: 118px; left: 18px; animation-delay: 0.6s; }
-    .hud-bl::before { bottom: 0; left: 0; }
-    .hud-bl::after  { bottom: 0; left: 0; }
-
-    .hud-br { bottom: 118px; right: 18px; animation-delay: 0.8s; }
-    .hud-br::before { bottom: 0; right: 0; }
-    .hud-br::after  { bottom: 0; right: 0; }
-
-    @keyframes hud-fadein { from { opacity: 0; } to { opacity: 1; } }
-
-    /* HUD text lines */
-    .hud-line {
-      position: absolute;
-      font-family: 'Courier New', monospace; font-size: 0.62rem;
-      letter-spacing: 0.1em; color: var(--accent); opacity: 0;
-      animation: hud-fadein 1s ease forwards;
-    }
-    .hud-tl-text { top: 74px; left: 48px; animation-delay: 0.5s; }
-    .hud-tr-text { top: 74px; right: 48px; animation-delay: 0.7s; }
-    .hud-bl-text { bottom: 124px; left: 48px; animation-delay: 0.9s; white-space: nowrap; }
-
-    /* Scanning line */
-    .hud-scan {
-      position: absolute; left: 18px; right: 18px; height: 1px;
-      background: linear-gradient(90deg, transparent 0%, var(--accent) 40%, var(--accent) 60%, transparent 100%);
-      opacity: 0; top: 68px;
-      animation: hud-scan 6s ease-in-out 1.5s infinite;
-    }
     @keyframes hud-scan {
-      0%   { top: 68px;  opacity: 0; }
+      0%   { top: 58px; opacity: 0; }
       3%   { opacity: 0.35; }
       97%  { opacity: 0.08; }
-      100% { top: calc(100% - 118px); opacity: 0; }
+      100% { top: calc(100% - 110px); opacity: 0; }
     }
+    .hud-scan { animation: hud-scan 6s ease-in-out 1.5s infinite; }
 
-    /* Floating stat chips */
-    .hud-chip {
-      position: absolute;
-      font-family: 'Courier New', monospace; font-size: 0.63rem; font-weight: 700;
-      color: var(--accent); background: rgba(13,13,20,0.75);
-      border: 1px solid var(--accent-ring); border-radius: 4px;
-      padding: 4px 9px; letter-spacing: 0.06em;
-      opacity: 0; animation: chip-float 0s ease forwards; /* delay set inline */
+    @keyframes status-pulse {
+      0%,100% { opacity:1; box-shadow: 0 0 5px #22c55e; }
+      50%      { opacity:0.4; box-shadow: none; }
     }
-    @keyframes chip-appear { from { opacity:0; transform: translateY(6px); } to { opacity:0.75; transform: translateY(0); } }
-    @keyframes chip-bob { 0%,100% { transform: translateY(0); opacity:0.75; } 50% { transform: translateY(-7px); opacity:0.95; } }
+    .status-dot { animation: status-pulse 2s ease-in-out infinite; }
 
+    @keyframes chip-appear { from { opacity:0; transform:translateY(6px); } to { opacity:0.8; transform:translateY(0); } }
+    @keyframes chip-bob    { 0%,100% { transform:translateY(0); opacity:0.8; } 50% { transform:translateY(-8px); opacity:1; } }
     .hud-chip { animation: chip-appear 0.6s ease forwards, chip-bob 5s ease-in-out infinite; }
-    .hud-chip-1 { top: 22%; right: 3%;  animation-delay: 1.2s, 1.8s; }
-    .hud-chip-2 { top: 68%; left: 2%;   animation-delay: 1.8s, 2.4s; }
-    .hud-chip-3 { top: 48%; right: 2%;  animation-delay: 2.4s, 3.0s; }
-    .hud-chip-4 { top: 38%; left: 2%;   animation-delay: 2.0s, 2.6s; }
-    .hud-chip-5 { top: 80%; right: 3%;  animation-delay: 2.8s, 3.4s; }
 
-    /* HUD status bar bottom */
-    .hud-status {
-      position: absolute; bottom: 122px; left: 50%;
-      transform: translateX(-50%);
-      font-family: 'Courier New', monospace; font-size: 0.58rem;
-      color: var(--accent); opacity: 0; letter-spacing: 0.14em; white-space: nowrap;
-      animation: hud-fadein 1s ease 1.4s forwards;
-    }
-    .hud-status-dot {
-      display: inline-block; width: 5px; height: 5px; border-radius: 50%;
-      background: #22c55e; margin-right: 6px; vertical-align: middle;
-      animation: status-pulse 2s ease-in-out infinite;
-    }
-    @keyframes status-pulse { 0%,100% { opacity:1; box-shadow: 0 0 4px #22c55e; } 50% { opacity:0.4; box-shadow: none; } }
-
-    /* Hide chips on small screens */
-    @media (max-width: 900px) { .hud-chip { display: none; } }
-    @media (max-width: 600px) {
-      .hud-corner, .hud-line, .hud-scan, .hud-status { display: none; }
-    }
-
-    /* ── Cursor glow ──────────────────────────────────────── */
-    #cursorGlow {
-      position: absolute; z-index: 1; pointer-events: none;
-      width: 380px; height: 380px; border-radius: 50%;
-      background: radial-gradient(circle, rgba(129,140,248,0.07) 0%, rgba(251,191,36,0.03) 40%, transparent 70%);
-      transform: translate(-50%, -50%);
-      transition: opacity 0.4s;
-      will-change: left, top;
-    }
-
-    /* ── Ocean Waves ──────────────────────────────────────── */
-    .hero-waves {
-      position: absolute; bottom: 0; left: 0; right: 0;
-      height: 130px; overflow: hidden; z-index: 1; pointer-events: none;
-    }
-    .wave-svg {
-      position: absolute; bottom: 0;
-      width: 200%; height: 100%; display: block;
-    }
+    /* ── Ocean waves ──────────────────────────────────────── */
+    @keyframes wave-drift { from { transform:translateX(0); } to { transform:translateX(-50%); } }
     .wave-1 { animation: wave-drift  9s linear infinite; }
     .wave-2 { animation: wave-drift 14s linear infinite reverse; }
     .wave-3 { animation: wave-drift  6s linear infinite; }
-    @keyframes wave-drift {
-      from { transform: translateX(0); }
-      to   { transform: translateX(-50%); }
-    }
 
-    /* ── Pinned Project ─────────────────────────────────────── */
-    .pin-label {
-      font-size: 0.68rem; font-weight: 700; color: var(--accent);
-      display: flex; align-items: center; gap: 5px; margin-bottom: 10px;
-      letter-spacing: 0.05em; text-transform: uppercase;
-    }
-    .pin-wrap {
-      border-radius: 16px;
-      padding: 2px;
-      background: linear-gradient(180deg, #818cf8 0%, #a78bfa 25%, #fbbf24 50%, #f9a8d4 75%, #818cf8 100%);
-      background-size: 100% 300%;
-      animation: border-flow 3s linear infinite, pin-glow 2.5s ease-in-out infinite;
-    }
-    .pin-wrap .pcard {
-      border-color: transparent !important;
-      margin: 0;
-    }
+    /* ── Pinned gradient border ───────────────────────────── */
     @keyframes border-flow {
       0%   { background-position: 0% 0%; }
       100% { background-position: 0% 300%; }
@@ -545,891 +95,1428 @@
       0%,100% { box-shadow: 0 0 22px rgba(129,140,248,0.35), 0 0 44px rgba(129,140,248,0.12); }
       50%     { box-shadow: 0 0 36px rgba(129,140,248,0.6),  0 0 72px rgba(251,191,36,0.2); }
     }
+    .pin-wrap {
+      border-radius: 16px; padding: 2px;
+      background: linear-gradient(180deg, #818cf8 0%, #a78bfa 25%, #fbbf24 50%, #f9a8d4 75%, #818cf8 100%);
+      background-size: 100% 300%;
+      animation: border-flow 3s linear infinite, pin-glow 2.5s ease-in-out infinite;
+    }
 
-    /* ── Resume Section ─────────────────────────────────────── */
-    .resume-top { display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:16px; margin-bottom:40px; }
-    .resume-top .s-title { margin-bottom:0; }
-    .resume-doc {
-      background: var(--bg-card); border: 1px solid var(--border);
-      border-radius: 16px; padding: 40px 44px; max-width: 820px; margin: 0 auto;
+    /* ── Card flip ────────────────────────────────────────── */
+    .flip-card { perspective: 700px; }
+    .flip-inner { transition: transform 0.65s; transform-style: preserve-3d; position: relative; min-height: 108px; }
+    .flip-card:hover .flip-inner { transform: rotateY(180deg); }
+    .flip-front, .flip-back { backface-visibility: hidden; }
+    .flip-back { position: absolute; top:0; left:0; right:0; transform: rotateY(180deg); padding-top: 4px; }
+
+    /* ── Hobby emoji animations ───────────────────────────── */
+    @keyframes roll      { 0%,100%{transform:translateX(-5px) rotate(-8deg);} 50%{transform:translateX(5px) rotate(8deg);} }
+    @keyframes bounce-op { 0%,100%{transform:translateY(0);}   50%{transform:translateY(-6px);} }
+    @keyframes pulse-g   { 0%,100%{filter:brightness(1);}      50%{filter:brightness(1.45);} }
+    .skate-em { display:inline-block; animation: roll 2s ease-in-out infinite; }
+    .op-em    { display:inline-block; animation: bounce-op 1.8s ease-in-out infinite; }
+    .game-em  { display:inline-block; animation: pulse-g 2.5s ease-in-out infinite; }
+
+    /* ── Terminal ─────────────────────────────────────────── */
+    .terminal-body { scrollbar-width: thin; scrollbar-color: #252536 #111119; }
+    .terminal-body::-webkit-scrollbar { width: 4px; }
+    .terminal-body::-webkit-scrollbar-thumb { background: #252536; border-radius: 2px; }
+
+    /* ── Mini chart hover ─────────────────────────────────── */
+    .project-chart { opacity:0; transform:translateY(8px); transition: opacity 0.3s, transform 0.3s; pointer-events:none; }
+    .pcard-wrap:hover .project-chart { opacity:1; transform:translateY(0); }
+
+    /* ── BJJ belt ─────────────────────────────────────────── */
+    .belt-stripe { width:8px; height:4px; border-radius:2px; background:#818cf8; opacity:0.45; transition:opacity 0.3s; }
+    .hcard:hover .belt-stripe { opacity:1; }
+
+    /* ── General hcard ────────────────────────────────────── */
+    .hcard {
+      background: #171723; border: 1px solid #252536; border-radius: 12px;
+      padding: 18px 14px 16px; text-align: center; transition: all 0.28s; cursor: default;
+      overflow: hidden; position: relative;
     }
-    .rdoc-header { text-align: center; margin-bottom: 28px; padding-bottom: 22px; border-bottom: 1px solid var(--border); }
-    .rdoc-name { font-size: 1.8rem; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 10px; }
-    .rdoc-contacts { display: flex; justify-content: center; flex-wrap: wrap; gap: 4px 16px; font-size: 0.78rem; color: var(--text-muted); }
-    .rdoc-contacts a { color: var(--text-muted); }
-    .rdoc-contacts a:hover { color: var(--accent); opacity: 1; }
-    .rdoc-section { margin-bottom: 26px; }
-    .rdoc-section-title {
-      font-size: 0.67rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase;
-      color: var(--accent); border-bottom: 1px solid var(--border);
-      padding-bottom: 6px; margin-bottom: 14px;
+    .hcard::before {
+      content:''; position:absolute; inset:0; border-radius:12px;
+      background: rgba(129,140,248,0.08); opacity:0; transition:opacity 0.28s;
     }
-    .rdoc-item { margin-bottom: 14px; }
-    .rdoc-item-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
-    .rdoc-item-title { font-size: 0.88rem; font-weight: 700; }
-    .rdoc-item-sub { font-size: 0.81rem; color: var(--accent); font-style: italic; }
-    .rdoc-item-meta { font-size: 0.74rem; color: var(--text-muted); white-space: nowrap; flex-shrink: 0; }
-    .rdoc-bullets { list-style: none; margin-top: 5px; }
-    .rdoc-bullets li {
-      font-size: 0.81rem; color: var(--text-muted); line-height: 1.65;
-      padding-left: 14px; position: relative; margin-bottom: 3px;
+    .hcard:hover { border-color: rgba(129,140,248,0.4); transform:translateY(-5px); box-shadow: 0 8px 32px rgba(0,0,0,0.45); }
+    .hcard:hover::before { opacity:1; }
+
+    /* ── Scroll fade-in ───────────────────────────────────── */
+    @keyframes scrollFadeIn {
+      from { opacity:0; transform:translateY(20px); }
+      to   { opacity:1; transform:translateY(0); }
     }
-    .rdoc-bullets li::before { content: '•'; position: absolute; left: 0; color: var(--accent); }
-    .rdoc-bullets li b { color: var(--text); font-weight: 600; }
-    .rdoc-skill-row { display: flex; gap: 6px; font-size: 0.81rem; margin-bottom: 5px; flex-wrap: wrap; }
-    .rdoc-skill-row b { color: var(--text); font-weight: 600; flex-shrink: 0; }
-    .rdoc-skill-row span { color: var(--text-muted); }
-    .resume-actions { display: flex; justify-content: center; margin-top: 28px; }
-    @media (max-width: 600px) { .resume-doc { padding: 24px 20px; } }
+    .sfi { opacity:0; }
+    .sfi.vis { animation: scrollFadeIn 0.6s ease forwards; }
+    .sfi-d1.vis { animation-delay: 0.1s; }
+    .sfi-d2.vis { animation-delay: 0.2s; }
+    .sfi-d3.vis { animation-delay: 0.3s; }
+
+    /* ── Project filter pills ─────────────────────────────── */
+    .pill { transition: all 0.2s; cursor: pointer; }
+    .pill.active { background: #818cf8; color: #fff; border-color: #818cf8; }
+
+    /* ── Gradient text ────────────────────────────────────── */
+    .grad-text {
+      background: linear-gradient(135deg, #818cf8, #22d3ee);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+
+    /* ── Timeline dot ─────────────────────────────────────── */
+    .tl-dot::before {
+      content:''; position:absolute; left:-7px; top:3px;
+      width:12px; height:12px; border-radius:50%;
+      background:#818cf8; border: 2px solid #0d0d14;
+    }
   </style>
 </head>
 <body>
+<div id="root"></div>
 
-<!-- ═══ NAV ══════════════════════════════════════════════════ -->
-<nav>
-  <div class="nav-inner">
-    <div class="nav-logo">yra<span>.</span></div>
-    <div class="nav-links">
-      <a href="#about" data-section="about">About</a>
-      <a href="#experience" data-section="experience">Experience</a>
-      <a href="#projects" data-section="projects">Projects</a>
-      <a href="#skills" data-section="skills">Skills</a>
-      <a href="#resume" data-section="resume">Resume</a>
-      <a href="#contact" data-section="contact">Contact</a>
-      <button class="theme-btn" id="themeBtn">
-        <span id="themeIco">☀️</span>
-        <span id="themeTxt">Light</span>
-      </button>
-    </div>
-  </div>
-</nav>
+<script type="text/babel">
+const { useState, useEffect, useRef, useCallback, useMemo } = React;
 
-<!-- ═══ HERO ══════════════════════════════════════════════════ -->
-<section id="hero">
+/* ═══════════════════════════════════════════════════════════
+   ICONS — Lucide-style inline SVG components
+═══════════════════════════════════════════════════════════ */
+const Icon = ({ d, size=16, ...p }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
+    stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}>
+    {Array.isArray(d) ? d.map((path,i) => <path key={i} d={path}/>) : <path d={d}/>}
+  </svg>
+);
+const IconFill = ({ d, size=16 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor"><path d={d}/></svg>
+);
 
-  <!-- Star field canvas -->
-  <canvas id="heroCanvas"></canvas>
+const Icons = {
+  Github:      ({size=16}) => <IconFill size={size} d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.21 11.39.6.11.82-.26.82-.58v-2.23c-3.34.73-4.04-1.42-4.04-1.42-.55-1.39-1.33-1.76-1.33-1.76-1.09-.74.08-.73.08-.73 1.2.08 1.84 1.24 1.84 1.24 1.07 1.83 2.81 1.3 3.49 1 .11-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.12-.3-.54-1.52.12-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 0 1 3-.4c1.02 0 2.05.14 3 .4 2.29-1.55 3.3-1.23 3.3-1.23.66 1.66.24 2.88.12 3.18.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.63-5.48 5.92.43.37.82 1.1.82 2.22v3.29c0 .32.21.69.82.58C20.56 21.8 24 17.3 24 12 24 5.37 18.63 0 12 0z"/>,
+  Linkedin:    ({size=16}) => <IconFill size={size} d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.36V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zm1.78 13.02H3.55V9h3.57v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45C23.2 24 24 23.23 24 22.27V1.73C24 .77 23.2 0 22.22 0z"/>,
+  Mail:        ({size=16}) => <Icon size={size} d={["M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z","M22 6l-10 7L2 6"]}/>,
+  ExternalLink:({size=16}) => <Icon size={size} d={["M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6","M15 3h6v6","M10 14 21 3"]}/>,
+  Download:    ({size=16}) => <Icon size={size} d={["M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4","M7 10l5 5 5-5","M12 15V3"]}/>,
+  Terminal:    ({size=16}) => <Icon size={size} d={["M4 17l6-6-6-6","M12 19h8"]}/>,
+  Pin:         ({size=16}) => <Icon size={size} d="M12 2a7 7 0 0 1 7 7c0 5.25-7 13-7 13S5 14.25 5 9a7 7 0 0 1 7-7z"/>,
+  Trophy:      ({size=16}) => <Icon size={size} d={["M6 9H2V5h4","M18 9h4V5h-4","M8 21h8","M12 21v-4","M17 9a5 5 0 0 1-10 0V3h10v6z"]}/>,
+  Filter:      ({size=16}) => <Icon size={size} d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/>,
+  BarChart:    ({size=16}) => <Icon size={size} d={["M18 20V10","M12 20V4","M6 20v-6"]}/>,
+  Code:        ({size=16}) => <Icon size={size} d={["M16 18l6-6-6-6","M8 6l-6 6 6 6"]}/>,
+  Database:    ({size=16}) => <Icon size={size} d={["M12 2C6.48 2 2 4.24 2 7s4.48 5 10 5 10-2.24 10-5-4.48-5-10-5z","M2 7v5c0 2.76 4.48 5 10 5s10-2.24 10-5V7","M2 12v5c0 2.76 4.48 5 10 5s10-2.24 10-5v-5"]}/>,
+  Cpu:         ({size=16}) => <Icon size={size} d={["M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0","M9 3v2","M15 3v2","M9 19v2","M15 19v2","M3 9h2","M3 15h2","M19 9h2","M19 15h2","M5 5h14a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-10a2 2 0 0 1 2 -2z"]}/>,
+  Zap:         ({size=16}) => <Icon size={size} d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>,
+  Globe:       ({size=16}) => <Icon size={size} d={["M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z","M2 12h20","M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"]}/>,
+  Sun:         ({size=16}) => <Icon size={size} d={["M12 1v2","M12 21v2","M4.22 4.22l1.42 1.42","M18.36 18.36l1.42 1.42","M1 12h2","M21 12h2","M4.22 19.78l1.42-1.42","M18.36 5.64l1.42-1.42","M12 6a6 6 0 1 0 0 12 6 6 0 0 0 0-12z"]}/>,
+  Moon:        ({size=16}) => <Icon size={size} d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>,
+  ChevronRight:({size=16}) => <Icon size={size} d="M9 18l6-6-6-6"/>,
+  Star:        ({size=16}) => <Icon size={size} d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>,
+  Activity:    ({size=16}) => <Icon size={size} d="M22 12h-4l-3 9L9 3l-3 9H2"/>,
+};
 
-  <!-- HUD Overlay -->
-  <div class="hud-overlay">
-    <div class="hud-corner hud-tl"></div>
-    <div class="hud-corner hud-tr"></div>
-    <div class="hud-corner hud-bl"></div>
-    <div class="hud-corner hud-br"></div>
+/* ═══════════════════════════════════════════════════════════
+   STARFIELD HOOK
+═══════════════════════════════════════════════════════════ */
+function useStarfield(enabled) {
+  const canvasRef = useRef(null);
+  const heroRef   = useRef(null);
+  const stateRef  = useRef({ mx: 0, my: 0, lx: 0, ly: 0, t: 0, particles: [], lastSpawn: 0, animId: null });
+  const [coords, setCoords] = useState({ x: '0000', y: '0000' });
 
-    <div class="hud-line hud-tl-text">[ GRAND LINE · UCSD DS · 2026 ]</div>
-    <div class="hud-line hud-tr-text" id="hudCoords">X: 0000 / Y: 0000</div>
-    <div class="hud-line hud-bl-text">SECTOR_04 · NEW WORLD</div>
+  useEffect(() => {
+    if (!enabled) return;
+    const canvas = canvasRef.current;
+    const hero   = heroRef.current;
+    if (!canvas || !hero) return;
 
-    <div class="hud-scan"></div>
-
-    <span class="hud-chip hud-chip-1">ACC&nbsp;73.6%</span>
-    <span class="hud-chip hud-chip-2">R²&nbsp;=&nbsp;0.93</span>
-    <span class="hud-chip hud-chip-3">133K&nbsp;ROWS</span>
-    <span class="hud-chip hud-chip-4">p&nbsp;&lt;&nbsp;0.001</span>
-    <span class="hud-chip hud-chip-5">TOP&nbsp;16%</span>
-
-    <div class="hud-status">
-      <span class="hud-status-dot"></span>ONLINE · CHARTING THE COURSE
-    </div>
-  </div>
-
-  <!-- Cursor glow -->
-  <div id="cursorGlow"></div>
-
-  <!-- Ocean waves -->
-  <div class="hero-waves">
-    <!-- Wave 3 — back, slowest -->
-    <svg class="wave-svg wave-3" viewBox="0 0 2880 130" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M0,95 C240,45 480,130 720,95 C960,45 1200,130 1440,95 C1680,45 1920,130 2160,95 C2400,45 2640,130 2880,95 L2880,130 L0,130 Z" fill="rgba(99,102,241,0.05)"/>
-    </svg>
-    <!-- Wave 2 — mid -->
-    <svg class="wave-svg wave-2" viewBox="0 0 2880 130" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M0,75 C360,15 480,120 720,75 C960,15 1200,120 1440,75 C1680,15 1920,120 2160,75 C2400,15 2640,120 2880,75 L2880,130 L0,130 Z" fill="rgba(129,140,248,0.07)"/>
-    </svg>
-    <!-- Wave 1 — front, fastest -->
-    <svg class="wave-svg wave-1" viewBox="0 0 2880 130" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M0,85 C180,30 360,115 540,85 C720,30 900,115 1080,85 C1260,30 1440,115 1620,85 C1800,30 1980,115 2160,85 C2340,30 2520,115 2700,85 C2880,30 2880,85 2880,85 L2880,130 L0,130 Z" fill="rgba(167,139,250,0.09)"/>
-    </svg>
-  </div>
-
-  <!-- Hero content -->
-  <div class="container">
-    <div class="hero-wrap">
-      <div class="hero-grid">
-        <div>
-          <div class="hero-eyebrow">Data Science · UC San Diego</div>
-          <h1 class="hero-name">Yra Climaco</h1>
-          <p class="hero-sub">
-            Second-year studying Data Science (GPA 3.8) with a Minor in Business Analytics.
-            Passionate about <strong>product analytics</strong> at B2C consumer tech —
-            gaming, streaming and entertainment.
-          </p>
-          <div class="hero-cta">
-            <a href="#projects" class="btn-p">View Projects →</a>
-            <a href="mailto:climacoyra@gmail.com" class="btn-o">Get in Touch</a>
-          </div>
-          <div class="hero-socials">
-            <a href="https://github.com/yraclimaco" target="_blank" rel="noopener" class="soc-link">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.21 11.39.6.11.82-.26.82-.58v-2.23c-3.34.73-4.04-1.42-4.04-1.42-.55-1.39-1.33-1.76-1.33-1.76-1.09-.74.08-.73.08-.73 1.2.08 1.84 1.24 1.84 1.24 1.07 1.83 2.81 1.3 3.49 1 .11-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.12-.3-.54-1.52.12-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 0 1 3-.4c1.02 0 2.05.14 3 .4 2.29-1.55 3.3-1.23 3.3-1.23.66 1.66.24 2.88.12 3.18.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.63-5.48 5.92.43.37.82 1.1.82 2.22v3.29c0 .32.21.69.82.58C20.56 21.8 24 17.3 24 12 24 5.37 18.63 0 12 0z"/></svg>
-              GitHub
-            </a>
-            <a href="https://www.linkedin.com/in/yra-climaco/" target="_blank" rel="noopener" class="soc-link">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.36V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zm1.78 13.02H3.55V9h3.57v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45C23.2 24 24 23.23 24 22.27V1.73C24 .77 23.2 0 22.22 0z"/></svg>
-              LinkedIn
-            </a>
-            <a href="mailto:climacoyra@gmail.com" class="soc-link">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
-              Email
-            </a>
-          </div>
-        </div>
-        <div class="hero-photo-wrap">
-          <div class="hero-photo-ring">
-            <div class="hero-photo">
-              <img src="photo.jpg" alt="Yra Climaco"
-                onerror="this.parentElement.innerHTML='<div class=\'photo-placeholder\'><span>👤</span><small>Add photo.jpg</small></div>'" />
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-</section>
-
-<!-- ═══ ABOUT ════════════════════════════════════════════════ -->
-<section id="about">
-  <div class="container">
-    <div class="s-label">About</div>
-    <h2 class="s-title">Building at the intersection of data and product</h2>
-    <div class="s-rule"></div>
-    <div class="about-grid fi">
-      <div class="about-text">
-        <p>
-          I'm a second-year Data Science student at <strong>UC San Diego</strong> (GPA 3.8)
-          minoring in Business Analytics. My dream is to help turn raw data into product insights that move
-          decisions at consumer tech companies.
-        </p>
-        <p>
-          My focus is <strong>product analytics at B2C companies</strong> in gaming, streaming,
-          and entertainment. I enjoy the full stack: PostgreSQL ETL pipelines, ML classifiers,
-          and presenting findings to non-technical stakeholders.
-        </p>
-        <p>
-          Active member of the <strong>Data Science Student Society (DS3)</strong>.
-          Completed one showcase cycle (3rd of 10 teams) and currently working through my second.
-          Sharpening SQL skills daily.
-        </p>
-        <div class="stats-row">
-          <div class="stat"><div class="stat-n" data-target="3.8" data-decimals="1">0</div><div class="stat-l">GPA</div></div>
-          <div class="stat"><div class="stat-n" data-target="4" data-suffix="+">0</div><div class="stat-l">Projects</div></div>
-          <div class="stat"><div class="stat-n" data-target="3" data-suffix="rd">0</div><div class="stat-l">DS3 Showcase</div></div>
-        </div>
-      </div>
-      <div>
-        <div class="edu-card">
-          <h3>University of California, San Diego</h3>
-          <div class="degree">B.S. Data Science · Minor in Business Analytics</div>
-          <div class="meta">Sept. 2024 – June 2028 · DS3 Member</div>
-          <div class="coursework">
-            <b>Coursework:</b> Practice of Data Science · Statistical Data Analysis and Inference ·
-            Theoretical Foundations of DS · Programming for DS · Applied Market Research ·
-            Data Structures and Algorithms · Linear Algebra
-          </div>
-        </div>
-
-        <div class="hobbies-label">Beyond the Data</div>
-        <div class="hobbies-grid">
-
-          <!-- BJJ -->
-          <div class="hcard">
-            <span class="hem">🥋</span>
-            <h4>Brazilian Jiu-Jitsu</h4>
-            <p>Ground game, positional control and submissions.</p>
-            <div class="belt"><div class="bs"></div><div class="bs"></div><div class="bs"></div></div>
-          </div>
-
-          <!-- One Piece -->
-          <div class="hcard">
-            <span class="hem op-em">🏴‍☠️</span>
-            <h4>Anime</h4>
-            <p>One Piece lover. Zoro is the GOAT.</p>
-          </div>
-
-          <!-- Gaming -->
-          <div class="hcard">
-            <span class="hem game-em">🎮</span>
-            <h4>Gaming</h4>
-            <p>Patiently waiting for Pokopia and Tomadachi Life.</p>
-          </div>
-
-          <!-- Card Magic flip -->
-          <div class="hcard magic">
-            <div class="magic-inner">
-              <div class="mf">
-                <span class="hem">🃏</span>
-                <h4>Card Magic</h4>
-                <p>Hover to reveal a trick...</p>
-              </div>
-              <div class="mb">
-                <div style="font-size:1.5rem;margin-bottom:6px;">✨🂡✨</div>
-                <h4>Your card...</h4>
-                <p>was the Ace of Spades.</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Skating -->
-          <div class="hcard">
-            <span class="hem"><span class="skate-em">🛹</span></span>
-            <h4>Skating</h4>
-            <p>Trying not to fall.</p>
-          </div>
-
-          <!-- ADCC teaser -->
-          <div class="hcard">
-            <span class="hem">📊</span>
-            <h4>Data Everything</h4>
-            <p>Turned my BJJ obsession into an ADCC data analysis.</p>
-          </div>
-
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ═══ EXPERIENCE ═══════════════════════════════════════════ -->
-<section id="experience">
-  <div class="container">
-    <div class="s-label">Experience</div>
-    <h2 class="s-title">Where I've built things</h2>
-    <div class="s-rule"></div>
-    <div class="tline fi">
-
-      <div class="titem">
-        <div class="tdate">
-          Feb. 2026<br>– Present
-          <div class="tbadge">Current</div>
-        </div>
-        <div class="tbody">
-          <div class="trole">Data Science Intern</div>
-          <div class="tco">Center for Community Energy (CCE) · San Diego, CA</div>
-          <ul class="tbulls">
-            <li>Developing a commercial property database for the "Move Now" renewable energy initiative targeting solar outreach across San Diego County.</li>
-            <li>Built full ETL pipeline in PostgreSQL to ingest, clean, and merge three San Diego public datasets into a unified solar outreach table using CTEs, JOINs, CASE WHEN logic, and UNION ALL.</li>
-            <li>Surfaced tax-exempt organizations absent from business tax data by applying LEFT JOIN logic, expanding the outreach target pool beyond standard filters.</li>
-          </ul>
-          <div class="tags" style="margin-top:12px;">
-            <span class="tag">PostgreSQL</span><span class="tag">ETL</span>
-            <span class="tag">CTEs</span><span class="tag">Window Functions</span><span class="tag">Data Engineering</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="titem">
-        <div class="tdate">Feb. 2023<br>– Present</div>
-        <div class="tbody">
-          <div class="trole">Pool Lifeguard &amp; Swim Instructor</div>
-          <div class="tco">LA County / Castaic Aquatic Center · Santa Clarita, CA</div>
-          <ul class="tbulls">
-            <li>Instructed swim lessons to children and adults, breaking down complex technique into clear, progressive steps for non-technical audiences.</li>
-            <li>Coordinated with a team of guards to maintain 100% coverage of high-traffic zones, resulting in zero safety incidents.</li>
-          </ul>
-        </div>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-<!-- ═══ PROJECTS ══════════════════════════════════════════════ -->
-<section id="projects">
-  <div class="container">
-    <div class="s-label">Projects</div>
-    <h2 class="s-title">Things I've built and analyzed</h2>
-    <div class="s-rule"></div>
-    <div class="pgrid fi">
-
-      <!-- TubeScope — PINNED FAVORITE -->
-      <div class="pin-wrap fi fi-d1">
-        <div class="pcard">
-          <div class="pin-label">📌 Pinned &mdash; Favorite Project</div>
-          <div class="phead">
-            <div>
-              <div class="pbadge">🏆 DS3 Cycle 1 · 3rd Place Showcase</div>
-              <div class="ptitle">TubeScope — Viral Trend Predictor</div>
-            </div>
-            <div class="plinks">
-              <a href="https://github.com/yraclimaco" target="_blank" rel="noopener" class="plink">GitHub ↗</a>
-            </div>
-          </div>
-          <ul class="pbulls">
-            <li>Selected for competitive DS3 project team (<b>top 16%</b>); awarded <b>3rd place out of 10 teams</b> at Showcase (Oct–Dec 2025).</li>
-            <li>Used Kaplan-Meier Survival Analysis to identify <b>83% viral trend drop-off</b>; built Random Forest classifier achieving <b>68% Recall and 3x Precision lift</b>.</li>
-            <li>Built automated Python pipeline to ingest data from YouTube Data API, powering live dashboard analytics.</li>
-            <li>Engineered features from raw video metadata and validated that Channel Authority outperformed metadata optimization as a predictor.</li>
-          </ul>
-          <div class="tags">
-            <span class="tag">Python</span><span class="tag">Pandas</span><span class="tag">Scikit-learn</span>
-            <span class="tag">Kaplan-Meier</span><span class="tag">YouTube API</span>
-            <span class="tag">Random Forest</span><span class="tag">Plotly</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- CCE Solar ETL -->
-      <div class="pcard fi fi-d4">
-        <div class="phead">
-          <div>
-            <div class="pbadge">🌱 Internship Project · CCE</div>
-            <div class="ptitle">Solar Outreach ETL Pipeline</div>
-          </div>
-        </div>
-        <ul class="pbulls">
-          <li>Built a full PostgreSQL ETL pipeline for a nonprofit's solar outreach campaign across San Diego County.</li>
-          <li>Merged three public datasets into a <b>133k-row master_prospects table</b> using CTEs, window functions, UNION ALL, and address normalization.</li>
-          <li>Surfaced tax-exempt organizations missed by standard business tax filters via LEFT JOIN logic, expanding the addressable outreach pool.</li>
-        </ul>
-        <div class="tags">
-          <span class="tag">PostgreSQL</span><span class="tag">ETL Pipeline</span>
-          <span class="tag">CTEs</span><span class="tag">Window Functions</span>
-          <span class="tag">UNION ALL</span><span class="tag">Data Engineering</span>
-        </div>
-      </div>
-
-      <!-- LoL Snowball -->
-      <div class="pcard fi fi-d1">
-        <div class="phead">
-          <div>
-            <div class="pbadge">⚔️ DSC80 Final Project · Live Deployment</div>
-            <div class="ptitle">Snowball Effect Analysis in Professional LoL</div>
-          </div>
-          <div class="plinks">
-            <a href="https://yraclimaco.github.io/lol-snowball-analysis" target="_blank" rel="noopener" class="plink">Live Site ↗</a>
-            <a href="https://github.com/yraclimaco/lol-snowball-analysis" target="_blank" rel="noopener" class="plink">GitHub ↗</a>
-          </div>
-        </div>
-        <ul class="pbulls">
-          <li>Analyzed <b>9,236 professional matches</b> from the 2025 LoL season to test whether early gold leads predict match outcomes.</li>
-          <li>Conducted permutation test confirming teams with positive gold differential at 15 minutes win at significantly higher rates (<b>p &lt; 0.001</b>).</li>
-          <li>Built Random Forest binary classifier on 15-min game data achieving <b>73.6% test accuracy</b>, outperforming a 50% random baseline by nearly 24%.</li>
-          <li>Deployed full data science lifecycle as an interactive GitHub Pages report covering EDA, missingness analysis, hypothesis testing, and fairness analysis.</li>
-        </ul>
-        <div class="tags">
-          <span class="tag">Python</span><span class="tag">Pandas</span><span class="tag">Scikit-learn</span>
-          <span class="tag">Plotly</span><span class="tag">Random Forest</span>
-          <span class="tag">Hypothesis Testing</span><span class="tag">GitHub Pages</span>
-        </div>
-      </div>
-
-      <!-- ADCC EDA -->
-      <div class="pcard fi fi-d3">
-        <div class="phead">
-          <div>
-            <div class="pbadge">🥋 Personal Project · EDA</div>
-            <div class="ptitle">ADCC World Championship Grappling Analysis</div>
-          </div>
-          <div class="plinks">
-            <a href="https://github.com/yraclimaco/ADCC-Grappling-Analysis" target="_blank" rel="noopener" class="plink">GitHub ↗</a>
-          </div>
-        </div>
-        <ul class="pbulls">
-          <li>Exploratory analysis of <b>ADCC World Championship match records from 1998–2022</b> to uncover the sport's evolving strategic meta.</li>
-          <li>Investigated submission technique trends over time — finding the Rear Naked Choke remains the highest-percentage finish alongside the rise of specialized leg attacks.</li>
-          <li>Analyzed decision patterns by round, revealing that championship finals skew toward <b>points-based strategies</b> vs. submission-focused prelims.</li>
-          <li>Categorized elite champion archetypes: submission finishers vs. point-scoring strategists.</li>
-        </ul>
-        <div class="tags">
-          <span class="tag">Python</span><span class="tag">Pandas</span>
-          <span class="tag">Matplotlib</span><span class="tag">Seaborn</span>
-          <span class="tag">EDA</span><span class="tag">Jupyter</span>
-        </div>
-      </div>
-
-
-      <!-- Uber & Lyft -->
-      <div class="pcard fi fi-d1">
-        <div class="phead">
-          <div>
-            <div class="pbadge">🚕 Regression Model · Sept 2025</div>
-            <div class="ptitle">Uber &amp; Lyft Fare Prediction Model</div>
-          </div>
-          <div class="plinks">
-            <a href="https://github.com/yraclimaco" target="_blank" rel="noopener" class="plink">GitHub ↗</a>
-          </div>
-        </div>
-        <ul class="pbulls">
-          <li>Analyzed <b>600k+ ride-share transactions</b> using Linear Regression (<b>R² = 0.93</b>) to model fare pricing patterns.</li>
-          <li>Engineered time-based features identifying Surge Multiplier and Distance as primary cost drivers.</li>
-          <li>Performed residual analysis revealing degraded accuracy on Luxury tier rides due to class imbalance.</li>
-        </ul>
-        <div class="tags">
-          <span class="tag">Python</span><span class="tag">Pandas</span><span class="tag">Scikit-learn</span>
-          <span class="tag">NumPy</span><span class="tag">Matplotlib</span>
-          <span class="tag">Seaborn</span><span class="tag">Linear Regression</span>
-        </div>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-<!-- ═══ SKILLS ════════════════════════════════════════════════ -->
-<section id="skills">
-  <div class="container">
-    <div class="s-label">Skills</div>
-    <h2 class="s-title">Tools of the trade</h2>
-    <div class="s-rule"></div>
-    <div class="sgrid fi">
-      <div class="sgroup">
-        <div class="sgroup-lbl">Languages</div>
-        <div class="stags">
-          <span class="stag">Python</span>
-          <span class="stag">SQL (PostgreSQL)</span>
-        </div>
-      </div>
-      <div class="sgroup">
-        <div class="sgroup-lbl">Data Analysis</div>
-        <div class="stags">
-          <span class="stag">Pandas</span><span class="stag">NumPy</span>
-          <span class="stag">ETL Pipelines</span><span class="stag">Hypothesis Testing</span>
-          <span class="stag">Permutation Testing</span>
-        </div>
-      </div>
-      <div class="sgroup">
-        <div class="sgroup-lbl">Machine Learning</div>
-        <div class="stags">
-          <span class="stag">Scikit-learn</span><span class="stag">Random Forests</span>
-          <span class="stag">Classification</span><span class="stag">Survival Analysis</span>
-          <span class="stag">Kaplan-Meier</span>
-        </div>
-      </div>
-      <div class="sgroup">
-        <div class="sgroup-lbl">Visualization &amp; Tools</div>
-        <div class="stags">
-          <span class="stag">Tableau</span><span class="stag">Plotly</span>
-          <span class="stag">Matplotlib</span><span class="stag">Seaborn</span>
-          <span class="stag">Git</span><span class="stag">Excel</span>
-          <span class="stag">Jupyter</span><span class="stag">VS Code</span>
-        </div>
-      </div>
-    </div>
-    <div class="learning-bar fi" style="margin-top:16px;">
-      <strong>Currently sharpening:</strong> &nbsp;SQL (DataLemur daily problems) · Tableau · Excel (XLOOKUP, pivot tables)
-    </div>
-  </div>
-</section>
-
-<!-- ═══ RESUME ═══════════════════════════════════════════════ -->
-<section id="resume">
-  <div class="container">
-    <div class="resume-top">
-      <div>
-        <div class="s-label">Resume</div>
-        <h2 class="s-title">Full résumé</h2>
-      </div>
-      <a href="Yra_Climaco_ResumeV4.pdf" download class="btn-p">⬇&nbsp;Download PDF</a>
-    </div>
-    <div class="s-rule"></div>
-
-    <div class="resume-doc fi">
-
-      <!-- Header -->
-      <div class="rdoc-header">
-        <div class="rdoc-name">Yra Climaco</div>
-        <div class="rdoc-contacts">
-          <span>661-207-1800</span>
-          <a href="mailto:climacoyra@gmail.com">climacoyra@gmail.com</a>
-          <a href="https://www.linkedin.com/in/yra-climaco/" target="_blank" rel="noopener">linkedin.com/in/yra-climaco</a>
-          <a href="https://github.com/yraclimaco" target="_blank" rel="noopener">github.com/yraclimaco</a>
-        </div>
-      </div>
-
-      <!-- Education -->
-      <div class="rdoc-section">
-        <div class="rdoc-section-title">Education</div>
-        <div class="rdoc-item">
-          <div class="rdoc-item-head">
-            <div class="rdoc-item-title">University of California, San Diego</div>
-            <div class="rdoc-item-meta">San Diego, CA</div>
-          </div>
-          <div class="rdoc-item-head">
-            <div class="rdoc-item-sub">Bachelor of Science in Data Science, Minor in Business Analytics</div>
-            <div class="rdoc-item-meta">Sept. 2024 – June 2028</div>
-          </div>
-          <ul class="rdoc-bullets">
-            <li><b>GPA:</b> 3.8 / 4.0 &nbsp;|&nbsp; <b>Activities:</b> Data Science Student Society (DS3)</li>
-            <li><b>Relevant Coursework:</b> Practice of Data Science · Data Science with AI · Applied Statistical Data Analysis and Inference · Statistical Methods · Theoretical Foundations of Data Science · Programming for Data Science · Applied Market Research · Linear Algebra · Data Structures &amp; Algorithms</li>
-          </ul>
-        </div>
-      </div>
-
-      <!-- Experience -->
-      <div class="rdoc-section">
-        <div class="rdoc-section-title">Experience</div>
-
-        <div class="rdoc-item">
-          <div class="rdoc-item-head">
-            <div class="rdoc-item-title">Data Science Intern</div>
-            <div class="rdoc-item-meta">San Diego, CA</div>
-          </div>
-          <div class="rdoc-item-head">
-            <div class="rdoc-item-sub">Center for Community Energy (CCE)</div>
-            <div class="rdoc-item-meta">Feb. 2026 – Present</div>
-          </div>
-          <ul class="rdoc-bullets">
-            <li>Developing a commercial property database for the "Move Now" renewable energy initiative targeting solar outreach across San Diego County.</li>
-            <li>Built full ETL pipeline in PostgreSQL to ingest, clean, and merge three San Diego public datasets; engineered a unified solar outreach table using CTEs, JOINs, CASE WHEN logic, and UNION ALL.</li>
-            <li>Surfaced tax-exempt organizations absent from business tax data by applying LEFT JOIN logic, expanding the outreach target pool beyond standard filters.</li>
-          </ul>
-        </div>
-
-        <div class="rdoc-item">
-          <div class="rdoc-item-head">
-            <div class="rdoc-item-title">LA County Pool Lifeguard &amp; Swim Instructor</div>
-            <div class="rdoc-item-meta">Santa Clarita, CA</div>
-          </div>
-          <div class="rdoc-item-head">
-            <div class="rdoc-item-sub">Castaic Aquatic Center</div>
-            <div class="rdoc-item-meta">Feb. 2023 – Present</div>
-          </div>
-          <ul class="rdoc-bullets">
-            <li>Instructed swim lessons to children and adults, breaking down complex technique into clear, progressive steps for non-technical audiences.</li>
-            <li>Coordinate with a team of guards to maintain 100% coverage of high-traffic zones, resulting in zero safety incidents.</li>
-          </ul>
-        </div>
-      </div>
-
-      <!-- Projects -->
-      <div class="rdoc-section">
-        <div class="rdoc-section-title">Projects</div>
-
-        <div class="rdoc-item">
-          <div class="rdoc-item-head">
-            <div class="rdoc-item-title">Snowball Effect Analysis in Professional LoL &nbsp;<span style="font-weight:500;font-size:0.76rem;color:var(--text-muted);">Python · Pandas · Scikit-learn · Plotly</span></div>
-            <div class="rdoc-item-meta">Mar. 2026</div>
-          </div>
-          <ul class="rdoc-bullets">
-            <li>Analyzed 9,236 professional matches from the 2025 season to investigate whether early game advantages predict match outcomes.</li>
-            <li>Conducted permutation test confirming teams with positive gold differential at 15 minutes win at significantly higher rates (p &lt; 0.001).</li>
-            <li>Built Random Forest binary classifier on 15-minute game data achieving 73.6% test accuracy, outperforming a 50% random baseline by nearly 24%.</li>
-            <li>Deployed full data science lifecycle as interactive report on GitHub Pages including EDA, missingness analysis, hypothesis testing, and fairness analysis.</li>
-          </ul>
-        </div>
-
-        <div class="rdoc-item">
-          <div class="rdoc-item-head">
-            <div class="rdoc-item-title">TubeScope — Viral Trend Predictor &nbsp;<span style="font-weight:500;font-size:0.76rem;color:var(--text-muted);">Python · Pandas · Scikit-learn · Plotly</span></div>
-            <div class="rdoc-item-meta">Oct. – Dec. 2025</div>
-          </div>
-          <ul class="rdoc-bullets">
-            <li>Selected for competitive DS3 project team (top 16%); awarded 3rd place out of 10 teams at Showcase.</li>
-            <li>Analyzed early engagement patterns using Kaplan-Meier Survival Analysis to identify 83% viral trend drop-off; built Random Forest classifier achieving 68% Recall and 3x Precision lift.</li>
-            <li>Built automated Python pipeline to ingest data from YouTube Data API, powering live dashboard analytics.</li>
-            <li>Engineered predictive features from raw video metadata and validated the model, finding Channel Authority outperformed metadata optimization.</li>
-          </ul>
-        </div>
-
-        <div class="rdoc-item">
-          <div class="rdoc-item-head">
-            <div class="rdoc-item-title">Uber &amp; Lyft Fare Prediction Model &nbsp;<span style="font-weight:500;font-size:0.76rem;color:var(--text-muted);">Python · Pandas · Scikit-learn · NumPy · Matplotlib · Seaborn</span></div>
-            <div class="rdoc-item-meta">Sept. 2025</div>
-          </div>
-          <ul class="rdoc-bullets">
-            <li>Analyzed 600k+ ride-share transactions using Linear Regression (R² = 0.93) to model fare pricing patterns.</li>
-            <li>Engineered time-based features identifying Surge Multiplier and Distance as primary cost drivers.</li>
-            <li>Performed residual analysis revealing degraded accuracy on Luxury tier rides due to class imbalance.</li>
-          </ul>
-        </div>
-      </div>
-
-      <!-- Technical Skills -->
-      <div class="rdoc-section" style="margin-bottom:0;">
-        <div class="rdoc-section-title">Technical Skills</div>
-        <div class="rdoc-skill-row"><b>Languages:</b><span>Python, SQL (PostgreSQL)</span></div>
-        <div class="rdoc-skill-row"><b>Data Analysis:</b><span>Pandas, NumPy, ETL Pipelines, Hypothesis Testing, Permutation Testing</span></div>
-        <div class="rdoc-skill-row"><b>Machine Learning:</b><span>Scikit-learn, Random Forests, Survival Analysis (Kaplan-Meier), Classification</span></div>
-        <div class="rdoc-skill-row"><b>Visualization:</b><span>Tableau, Matplotlib, Seaborn, Plotly</span></div>
-        <div class="rdoc-skill-row"><b>Tools:</b><span>Git, Jupyter Notebooks, VS Code, Excel</span></div>
-      </div>
-
-    </div>
-
-    <div class="resume-actions">
-      <a href="Yra_Climaco_ResumeV4.pdf" download class="btn-p">⬇&nbsp;Download PDF</a>
-    </div>
-  </div>
-</section>
-
-<!-- ═══ CONTACT ═══════════════════════════════════════════════ -->
-<section id="contact">
-  <div class="container">
-    <div class="cgrid fi">
-      <div class="ctxt">
-        <div class="s-label">Contact</div>
-        <h2>Let's connect</h2>
-        <p style="margin-top:12px;">
-          Open to data science internships, product analytics roles, and project collaborations.
-          Especially interested in gaming, streaming, and consumer tech.
-          If you're building something interesting, reach out.
-        </p>
-      </div>
-      <div class="clinks">
-        <a href="mailto:climacoyra@gmail.com" class="citem">
-          <span class="ci">✉️</span>
-          <div><div class="cl">Email</div><div class="cv">climacoyra@gmail.com</div></div>
-        </a>
-        <a href="https://www.linkedin.com/in/yra-climaco/" target="_blank" rel="noopener" class="citem">
-          <span class="ci">💼</span>
-          <div><div class="cl">LinkedIn</div><div class="cv">linkedin.com/in/yra-climaco</div></div>
-        </a>
-        <a href="https://github.com/yraclimaco" target="_blank" rel="noopener" class="citem">
-          <span class="ci">🐙</span>
-          <div><div class="cl">GitHub</div><div class="cv">github.com/yraclimaco</div></div>
-        </a>
-      </div>
-    </div>
-  </div>
-</section>
-
-<footer>
-  <p>Designed and built by Yra Climaco · 2026</p>
-</footer>
-
-<script>
-  // ── Theme toggle ─────────────────────────────────────────────
-  const btn  = document.getElementById('themeBtn');
-  const ico  = document.getElementById('themeIco');
-  const txt  = document.getElementById('themeTxt');
-  const root = document.documentElement;
-  let dark = true;
-  btn.addEventListener('click', () => {
-    dark = !dark;
-    root.setAttribute('data-theme', dark ? 'dark' : 'light');
-    ico.textContent = dark ? '☀️' : '🌙';
-    txt.textContent = dark ? 'Light' : 'Dark';
-  });
-
-  // ── Active nav on scroll ─────────────────────────────────────
-  const sections = document.querySelectorAll('section[id]');
-  const navLinks = document.querySelectorAll('.nav-links a[data-section]');
-  const onScroll = () => {
-    let current = '';
-    sections.forEach(s => {
-      if (window.scrollY >= s.offsetTop - 90) current = s.id;
-    });
-    navLinks.forEach(a => {
-      a.classList.toggle('active', a.dataset.section === current);
-    });
-  };
-  window.addEventListener('scroll', onScroll, { passive: true });
-
-  // ── Scroll fade-in ───────────────────────────────────────────
-  const obs = new IntersectionObserver(entries => {
-    entries.forEach(e => {
-      if (e.isIntersecting) { e.target.classList.add('vis'); obs.unobserve(e.target); }
-    });
-  }, { threshold: 0.07 });
-  document.querySelectorAll('.fi').forEach(el => obs.observe(el));
-
-  // ── Count-up animation for stats ─────────────────────────────
-  const countEls = document.querySelectorAll('.stat-n[data-target]');
-  const countObs = new IntersectionObserver(entries => {
-    entries.forEach(e => {
-      if (!e.isIntersecting) return;
-      countObs.unobserve(e.target);
-      const el       = e.target;
-      const target   = parseFloat(el.dataset.target);
-      const decimals = parseInt(el.dataset.decimals || '0');
-      const suffix   = el.dataset.suffix || '';
-      const duration = 1200;
-      const start    = performance.now();
-      const tick = now => {
-        const p = Math.min((now - start) / duration, 1);
-        const ease = 1 - Math.pow(1 - p, 3);
-        const val = (target * ease).toFixed(decimals);
-        el.textContent = val + suffix;
-        if (p < 1) requestAnimationFrame(tick);
-      };
-      requestAnimationFrame(tick);
-    });
-  }, { threshold: 0.5 });
-  countEls.forEach(el => countObs.observe(el));
-
-  // ══════════════════════════════════════════════════════════
-  // HERO CANVAS — Parallax Starfield + Cursor Trail
-  // ══════════════════════════════════════════════════════════
-  (function () {
-    const canvas = document.getElementById('heroCanvas');
-    if (!canvas) return;
     const ctx = canvas.getContext('2d');
-    const hero = document.getElementById('hero');
     let W, H;
+    const s = stateRef.current;
 
     function resize() {
       W = canvas.width  = hero.offsetWidth;
       H = canvas.height = hero.offsetHeight;
+      s.mx = W / 2; s.my = H / 2; s.lx = W / 2; s.ly = H / 2;
     }
     window.addEventListener('resize', resize);
     resize();
 
-    // ── Star definitions ──────────────────────────────────
-    const STAR_COUNT = 220;
     const LAYER_DEFS = [
       { parallax: 0.018, sizeMin: 0.4, sizeMax: 1.1, alphaMin: 0.25, alphaMax: 0.65 },
       { parallax: 0.038, sizeMin: 0.9, sizeMax: 1.9, alphaMin: 0.40, alphaMax: 0.85 },
       { parallax: 0.07,  sizeMin: 1.5, sizeMax: 3.2, alphaMin: 0.55, alphaMax: 1.00 },
     ];
+    const COLORS = ['#e8eaf6','#e8eaf6','#e8eaf6','#fbbf24','#a78bfa','#93c5fd'];
+    const TRAIL_COLORS = ['#818cf8','#a5b4fc','#fbbf24','#f9a8d4','#ffffff'];
 
-    function starColor() {
-      const r = Math.random();
-      if (r < 0.14) return '#fbbf24'; // gold  — One Piece energy
-      if (r < 0.26) return '#a78bfa'; // violet
-      if (r < 0.34) return '#93c5fd'; // blue tint
-      return '#e8eaf6';               // near-white
-    }
-
-    const stars = Array.from({ length: STAR_COUNT }, () => {
-      const layer = LAYER_DEFS[Math.floor(Math.random() * LAYER_DEFS.length)];
-      const baseAlpha = layer.alphaMin + Math.random() * (layer.alphaMax - layer.alphaMin);
+    const stars = Array.from({ length: 220 }, () => {
+      const L = LAYER_DEFS[Math.floor(Math.random() * 3)];
       return {
-        nx: Math.random(), ny: Math.random(), // normalised 0-1
-        size: layer.sizeMin + Math.random() * (layer.sizeMax - layer.sizeMin),
-        baseAlpha,
-        color: starColor(),
-        parallax: layer.parallax,
-        twinkleSpeed: 0.4 + Math.random() * 1.8,
-        twinklePhase: Math.random() * Math.PI * 2,
+        nx: Math.random(), ny: Math.random(),
+        size: L.sizeMin + Math.random() * (L.sizeMax - L.sizeMin),
+        baseAlpha: L.alphaMin + Math.random() * (L.alphaMax - L.alphaMin),
+        color: COLORS[Math.floor(Math.random() * COLORS.length)],
+        parallax: L.parallax,
+        tSpeed: 0.4 + Math.random() * 1.8,
+        tPhase: Math.random() * Math.PI * 2,
       };
     });
 
-    // ── Cursor trail particles ────────────────────────────
-    const TRAIL_COLORS = ['#818cf8', '#a5b4fc', '#fbbf24', '#f9a8d4', '#ffffff'];
-    const particles = [];
-    let lastSpawn = 0;
-
-    function spawnParticles(x, y, count = 2) {
-      for (let i = 0; i < count; i++) {
+    function spawnParticles(x, y) {
+      for (let i = 0; i < 2; i++) {
         const angle = Math.random() * Math.PI * 2;
-        const speed = 0.4 + Math.random() * 1.2;
-        particles.push({
-          x, y,
-          vx: Math.cos(angle) * speed,
-          vy: Math.sin(angle) * speed - 0.6,
-          life: 1,
-          decay: 0.025 + Math.random() * 0.04,
+        const spd = 0.4 + Math.random() * 1.2;
+        s.particles.push({
+          x, y, vx: Math.cos(angle)*spd, vy: Math.sin(angle)*spd - 0.6,
+          life: 1, decay: 0.025 + Math.random() * 0.04,
           size: 0.8 + Math.random() * 2.2,
-          color: TRAIL_COLORS[Math.floor(Math.random() * TRAIL_COLORS.length)],
+          color: TRAIL_COLORS[Math.floor(Math.random() * 5)],
         });
       }
     }
 
-    // ── Mouse tracking ────────────────────────────────────
-    let mx = W / 2, my = H / 2; // raw mouse
-    let lx = W / 2, ly = H / 2; // lerped (parallax)
-
-    hero.addEventListener('mousemove', e => {
+    function onMouseMove(e) {
       const r = canvas.getBoundingClientRect();
-      mx = e.clientX - r.left;
-      my = e.clientY - r.top;
-
-      // Update HUD coords
-      const coordEl = document.getElementById('hudCoords');
-      if (coordEl) {
-        coordEl.textContent =
-          'X: ' + String(Math.floor(e.clientX)).padStart(4, '0') +
-          ' / Y: ' + String(Math.floor(e.clientY)).padStart(4, '0');
-      }
-
-      // Move cursor glow
-      const glow = document.getElementById('cursorGlow');
-      if (glow) { glow.style.left = mx + 'px'; glow.style.top = my + 'px'; }
-
-      // Spawn trail
+      s.mx = e.clientX - r.left;
+      s.my = e.clientY - r.top;
+      setCoords({ x: String(Math.floor(e.clientX)).padStart(4,'0'), y: String(Math.floor(e.clientY)).padStart(4,'0') });
       const now = Date.now();
-      if (now - lastSpawn > 35) {
-        spawnParticles(mx, my);
-        lastSpawn = now;
-      }
-    });
-
-    hero.addEventListener('mouseleave', () => {
-      const glow = document.getElementById('cursorGlow');
-      if (glow) glow.style.opacity = '0';
-    });
-    hero.addEventListener('mouseenter', () => {
-      const glow = document.getElementById('cursorGlow');
-      if (glow) glow.style.opacity = '1';
-    });
-
-    // ── Main render loop ──────────────────────────────────
-    let t = 0;
-    function draw() {
-      requestAnimationFrame(draw);
-      t += 0.016;
-
-      // Smooth parallax lerp
-      lx += (mx - lx) * 0.04;
-      ly += (my - ly) * 0.04;
-
-      ctx.clearRect(0, 0, W, H);
-
-      const offX = (lx - W * 0.5) / W;
-      const offY = (ly - H * 0.5) / H;
-
-      // Draw stars
-      stars.forEach(s => {
-        const px = ((s.nx * W + offX * s.parallax * W * 2) % W + W) % W;
-        const py = ((s.ny * H + offY * s.parallax * H * 1.5) % H + H) % H;
-
-        // Twinkle
-        const twinkle = 0.5 + 0.5 * Math.sin(t * s.twinkleSpeed + s.twinklePhase);
-        const alpha = s.baseAlpha * (0.55 + 0.45 * twinkle);
-
-        ctx.globalAlpha = alpha;
-
-        if (s.size > 2.2) {
-          // Bigger stars get a soft glow
-          const g = ctx.createRadialGradient(px, py, 0, px, py, s.size * 2.8);
-          g.addColorStop(0, s.color);
-          g.addColorStop(0.4, s.color + '88');
-          g.addColorStop(1, 'transparent');
-          ctx.beginPath();
-          ctx.arc(px, py, s.size * 2.8, 0, Math.PI * 2);
-          ctx.fillStyle = g;
-          ctx.fill();
-        }
-
-        // Core dot
-        ctx.beginPath();
-        ctx.arc(px, py, s.size, 0, Math.PI * 2);
-        ctx.fillStyle = s.color;
-        ctx.fill();
-      });
-
-      // Draw cursor trail
-      for (let i = particles.length - 1; i >= 0; i--) {
-        const p = particles[i];
-        p.x  += p.vx;
-        p.y  += p.vy;
-        p.vy += 0.05; // gravity drip
-        p.life -= p.decay;
-        if (p.life <= 0) { particles.splice(i, 1); continue; }
-
-        ctx.globalAlpha = Math.pow(p.life, 1.5) * 0.85;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
-        ctx.fillStyle = p.color;
-        ctx.fill();
-      }
-
-      ctx.globalAlpha = 1;
+      if (now - s.lastSpawn > 35) { spawnParticles(s.mx, s.my); s.lastSpawn = now; }
     }
 
+    hero.addEventListener('mousemove', onMouseMove);
+
+    function draw() {
+      s.animId = requestAnimationFrame(draw);
+      s.t += 0.016;
+      s.lx += (s.mx - s.lx) * 0.04;
+      s.ly += (s.my - s.ly) * 0.04;
+      ctx.clearRect(0, 0, W, H);
+
+      const offX = (s.lx - W * 0.5) / W;
+      const offY = (s.ly - H * 0.5) / H;
+
+      stars.forEach(star => {
+        const px = ((star.nx * W + offX * star.parallax * W * 2) % W + W) % W;
+        const py = ((star.ny * H + offY * star.parallax * H * 1.5) % H + H) % H;
+        const twinkle = 0.5 + 0.5 * Math.sin(s.t * star.tSpeed + star.tPhase);
+        const alpha = star.baseAlpha * (0.55 + 0.45 * twinkle);
+        ctx.globalAlpha = alpha;
+        if (star.size > 2.2) {
+          const g = ctx.createRadialGradient(px, py, 0, px, py, star.size * 2.8);
+          g.addColorStop(0, star.color); g.addColorStop(0.4, star.color + '88'); g.addColorStop(1, 'transparent');
+          ctx.beginPath(); ctx.arc(px, py, star.size * 2.8, 0, Math.PI*2);
+          ctx.fillStyle = g; ctx.fill();
+        }
+        ctx.beginPath(); ctx.arc(px, py, star.size, 0, Math.PI*2);
+        ctx.fillStyle = star.color; ctx.fill();
+      });
+
+      for (let i = s.particles.length - 1; i >= 0; i--) {
+        const p = s.particles[i];
+        p.x += p.vx; p.y += p.vy; p.vy += 0.05; p.life -= p.decay;
+        if (p.life <= 0) { s.particles.splice(i, 1); continue; }
+        ctx.globalAlpha = Math.pow(p.life, 1.5) * 0.85;
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI*2);
+        ctx.fillStyle = p.color; ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+    }
     draw();
-  })();
+
+    return () => {
+      window.removeEventListener('resize', resize);
+      hero.removeEventListener('mousemove', onMouseMove);
+      if (s.animId) cancelAnimationFrame(s.animId);
+    };
+  }, [enabled]);
+
+  return { canvasRef, heroRef, coords };
+}
+
+/* ═══════════════════════════════════════════════════════════
+   TERMINAL HOOK
+═══════════════════════════════════════════════════════════ */
+const TERM_POOL = [
+  { t: 'info',    m: 'Initializing SurfCast SD hourly forecast pipeline...' },
+  { t: 'info',    m: 'Fetching ocean observations → 303,000+ hourly records loaded' },
+  { t: 'ok',      m: 'Cloud Run job complete → predictions written to GCS' },
+  { t: 'info',    m: 'Initializing LoL 2025 Match Data Pipeline...' },
+  { t: 'info',    m: 'Ingesting 9,236 professional match records from Riot API...' },
+  { t: 'ok',      m: 'ETL complete → master_matches loaded (9,236 rows)' },
+  { t: 'info',    m: 'Encoding features: gold_diff_15, dragon_soul, baron_buff...' },
+  { t: 'info',    m: 'Running permutation test (n_permutations=10,000)...' },
+  { t: 'ok',      m: 'H₀ rejected — gold advantage at 15min: p < 0.001' },
+  { t: 'info',    m: 'Training Random Forest classifier (n_estimators=200, max_depth=8)...' },
+  { t: 'ok',      m: 'Random Forest test accuracy: 73.6% (+23.6pp vs baseline)' },
+  { t: 'info',    m: 'Launching TubeScope YouTube Data API ingestion batch...' },
+  { t: 'warn',    m: 'API quota at 84% — rotating to secondary key...' },
+  { t: 'ok',      m: 'Channel Authority scores computed for 12,441 videos' },
+  { t: 'info',    m: 'Fitting Kaplan-Meier survival model on engagement curves...' },
+  { t: 'ok',      m: 'Viral trend drop-off identified: 83% decay at t=72h' },
+  { t: 'ok',      m: 'Random Forest Recall: 68% | Precision lift: 3× baseline' },
+  { t: 'info',    m: 'Loading Uber & Lyft rideshare dataset (600k+ rows)...' },
+  { t: 'ok',      m: 'Linear Regression R² = 0.93 on holdout split' },
+  { t: 'info',    m: 'Detecting Luxury tier residual degradation...' },
+  { t: 'warn',    m: 'Class imbalance detected in Luxury tier — flagging for SMOTE...' },
+  { t: 'info',    m: 'PostgreSQL ETL: merging 3 San Diego County public datasets...' },
+  { t: 'info',    m: 'Applying LEFT JOIN to surface tax-exempt orgs...' },
+  { t: 'ok',      m: 'master_prospects table → 133,421 rows after UNION ALL' },
+  { t: 'info',    m: 'Computing ADCC submission frequency 1998–2022...' },
+  { t: 'ok',      m: 'Rear Naked Choke dominates: 31.2% of all finishes' },
+  { t: 'info',    m: 'Analyzing championship round submission vs points trends...' },
+  { t: 'ok',      m: 'Finals skew toward points-based strategy (62% decision rate)' },
+  { t: 'ok',      m: 'DS3 Showcase pipeline complete — 3rd of 10 teams' },
+  { t: 'info',    m: 'Sharpening: DataLemur SQL #47 — window functions...' },
+  { t: 'ok',      m: 'Query optimized — execution time: 12ms vs 340ms naive' },
+  { t: 'info',    m: 'System idle — awaiting next data pipeline trigger...' },
+];
+
+function useTerminal() {
+  const [lines, setLines] = useState([]);
+  const termRef = useRef(null);
+  const idxRef  = useRef(0);
+
+  useEffect(() => {
+    const initial = TERM_POOL.slice(0, 4).map((l, i) => ({ ...l, id: i, ts: timestamp() }));
+    setLines(initial);
+    idxRef.current = 4;
+
+    const iv = setInterval(() => {
+      const idx = idxRef.current % TERM_POOL.length;
+      idxRef.current++;
+      setLines(prev => {
+        const next = [...prev, { ...TERM_POOL[idx], id: Date.now(), ts: timestamp() }];
+        return next.length > 30 ? next.slice(-30) : next;
+      });
+    }, 1800);
+    return () => clearInterval(iv);
+  }, []);
+
+  useEffect(() => {
+    if (termRef.current) termRef.current.scrollTop = termRef.current.scrollHeight;
+  }, [lines]);
+
+  return { lines, termRef };
+}
+
+function timestamp() {
+  const now = new Date();
+  return `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   COUNT-UP HOOK
+═══════════════════════════════════════════════════════════ */
+function CountUp({ target, decimals=0, suffix='' }) {
+  const [val, setVal] = useState('0');
+  const elRef = useRef(null);
+  const animated = useRef(false);
+
+  useEffect(() => {
+    const obs = new IntersectionObserver(([e]) => {
+      if (!e.isIntersecting || animated.current) return;
+      animated.current = true;
+      const start = performance.now();
+      const dur = 1200;
+      function tick(now) {
+        const p = Math.min((now - start) / dur, 1);
+        const ease = 1 - Math.pow(1 - p, 3);
+        setVal((target * ease).toFixed(decimals) + suffix);
+        if (p < 1) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    }, { threshold: 0.5 });
+    if (elRef.current) obs.observe(elRef.current);
+    return () => obs.disconnect();
+  }, [target, decimals, suffix]);
+
+  return <span ref={elRef}>{val}</span>;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   MINI CHART — SVG bar chart for project cards
+═══════════════════════════════════════════════════════════ */
+function MiniChart({ title, bars, color='#818cf8' }) {
+  const max = Math.max(...bars.map(b => b.v));
+  return (
+    <div className="project-chart absolute inset-0 rounded-xl flex flex-col justify-end"
+         style={{background:'rgba(13,13,20,0.92)', backdropFilter:'blur(12px)', padding:'16px', border:'1px solid rgba(129,140,248,0.25)', zIndex:10}}>
+      <div className="font-mono text-xs mb-3" style={{color:'#818cf8', letterSpacing:'0.08em'}}>{title}</div>
+      <div className="flex items-end gap-2 h-16">
+        {bars.map((b, i) => (
+          <div key={i} className="flex flex-col items-center gap-1 flex-1">
+            <div className="text-xs font-mono" style={{color:'#e2e8f0', fontSize:'0.6rem'}}>{b.v}%</div>
+            <div className="w-full rounded-sm" style={{
+              height: `${(b.v / max) * 52}px`,
+              background: i === bars.findIndex(x => x.v === max) ? '#818cf8' : `${color}55`,
+              transition: 'height 0.3s ease',
+            }}/>
+            <div className="text-center font-mono" style={{color:'#8892a4', fontSize:'0.55rem', lineHeight:'1.2'}}>{b.l}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════
+   NAV
+═══════════════════════════════════════════════════════════ */
+const TABS = ['Home','Experience','Projects','Skills','Resume'];
+
+function Nav({ activeTab, setTab }) {
+  return (
+    <nav style={{position:'fixed',top:0,width:'100%',zIndex:100,
+      background:'rgba(13,13,20,0.88)',backdropFilter:'blur(16px)',
+      borderBottom:'1px solid #252536'}}>
+      <div className="flex justify-between items-center h-14 px-6 mx-auto" style={{maxWidth:'1000px'}}>
+        <div className="font-bold text-sm tracking-tight cursor-pointer" style={{letterSpacing:'-0.02em'}}
+             onClick={() => setTab('Home')}>
+          yra<span style={{color:'#818cf8'}}>.</span>
+        </div>
+        <div className="flex gap-1 items-center">
+          {TABS.map(tab => (
+            <button key={tab} onClick={() => setTab(tab)}
+              className="text-xs font-medium px-3 py-1.5 rounded-md transition-all duration-200"
+              style={{
+                color: activeTab===tab ? '#e2e8f0' : '#8892a4',
+                background: activeTab===tab ? '#171723' : 'transparent',
+                border: activeTab===tab ? '1px solid #252536' : '1px solid transparent',
+                cursor:'pointer',fontFamily:'inherit',
+              }}>
+              {tab}
+            </button>
+          ))}
+        </div>
+      </div>
+    </nav>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════
+   HUD OVERLAY
+═══════════════════════════════════════════════════════════ */
+function HudOverlay({ coords }) {
+  return (
+    <div style={{position:'absolute',inset:0,zIndex:1,pointerEvents:'none',overflow:'hidden'}}>
+      {/* Corner brackets */}
+      {[
+        {cls:'top-16 left-4', before:'top-0 left-0', after:'top-0 left-0', delay:'0.2s'},
+        {cls:'top-16 right-4', before:'top-0 right-0', after:'top-0 right-0', delay:'0.4s'},
+        {cls:'bottom-28 left-4', before:'bottom-0 left-0', after:'bottom-0 left-0', delay:'0.6s'},
+        {cls:'bottom-28 right-4', before:'bottom-0 right-0', after:'bottom-0 right-0', delay:'0.8s'},
+      ].map((c,i) => (
+        <div key={i} className={`absolute w-5 h-5 hud-appear`}
+             style={{...parsePos(c.cls), animationDelay:c.delay, opacity:0}}>
+          <div style={{position:'absolute',...parsePos(c.before), width:'2px', height:'100%', background:'#818cf8', opacity:0.55}}/>
+          <div style={{position:'absolute',...parsePos(c.after), width:'100%', height:'2px', background:'#818cf8', opacity:0.55}}/>
+        </div>
+      ))}
+
+      {/* HUD text lines */}
+      <div className="hud-appear absolute font-mono text-xs tracking-widest"
+           style={{color:'#818cf8', top:'70px', left:'48px', fontSize:'0.6rem', opacity:0, animationDelay:'0.5s'}}>
+        [ GRAND LINE · UCSD DS · 2026 ]
+      </div>
+      <div className="hud-appear absolute font-mono text-xs tracking-widest"
+           style={{color:'#818cf8', top:'70px', right:'48px', fontSize:'0.6rem', opacity:0, animationDelay:'0.7s'}}>
+        X: {coords.x} / Y: {coords.y}
+      </div>
+      <div className="hud-appear absolute font-mono text-xs tracking-widest"
+           style={{color:'#818cf8', bottom:'118px', left:'48px', fontSize:'0.6rem', opacity:0, animationDelay:'0.9s', whiteSpace:'nowrap'}}>
+        SECTOR_04 · NEW WORLD
+      </div>
+
+      {/* Scan line */}
+      <div className="hud-scan absolute left-4 right-4" style={{
+        height:'1px', opacity:0, top:'58px',
+        background:'linear-gradient(90deg, transparent 0%, #818cf8 40%, #818cf8 60%, transparent 100%)',
+      }}/>
+
+      {/* Floating stat chips */}
+      {[
+        {label:'ACC 73.6%',  style:{top:'22%',right:'3%',  animationDelay:'1.2s, 1.8s'}},
+        {label:'R² = 0.93',  style:{top:'68%',left:'2%',   animationDelay:'1.8s, 2.4s'}},
+        {label:'133K ROWS',  style:{top:'48%',right:'2%',  animationDelay:'2.4s, 3.0s'}},
+        {label:'p < 0.001',  style:{top:'38%',left:'2%',   animationDelay:'2.0s, 2.6s'}},
+        {label:'TOP 16%',    style:{top:'80%',right:'3%',  animationDelay:'2.8s, 3.4s'}},
+      ].map((c,i) => (
+        <span key={i} className="hud-chip absolute font-mono font-bold"
+              style={{
+                fontSize:'0.62rem', color:'#818cf8',
+                background:'rgba(13,13,20,0.8)',
+                border:'1px solid rgba(129,140,248,0.3)',
+                borderRadius:'4px', padding:'4px 9px',
+                letterSpacing:'0.06em', opacity:0,
+                ...c.style,
+              }}>
+          {c.label}
+        </span>
+      ))}
+
+      {/* Status bar */}
+      <div className="hud-appear absolute font-mono tracking-widest"
+           style={{bottom:'118px',left:'50%',transform:'translateX(-50%)',fontSize:'0.58rem',color:'#818cf8',opacity:0,animationDelay:'1.4s',whiteSpace:'nowrap'}}>
+        <span className="status-dot inline-block w-1.5 h-1.5 rounded-full mr-1.5 align-middle" style={{background:'#22c55e'}}/>
+        ONLINE · CHARTING THE COURSE
+      </div>
+    </div>
+  );
+}
+
+function parsePos(str) {
+  const out = {};
+  str.split(' ').forEach(s => {
+    const [k, v] = s.split('-').length === 2 ? [s.split('-')[0], s.split('-')[1]] : ['', ''];
+    if (k === 'top')    out.top    = v === '16' ? '64px' : v === '28' ? '112px' : v;
+    if (k === 'bottom') out.bottom = v === '28' ? '112px' : v;
+    if (k === 'left')   out.left   = v === '4'  ? '16px'  : v;
+    if (k === 'right')  out.right  = v === '4'  ? '16px'  : v;
+    if (k === 'top' && v === '0') out.top = 0;
+    if (k === 'bottom' && v === '0') out.bottom = 0;
+    if (k === 'right' && v === '0') out.right = 0;
+    if (k === 'left' && v === '0') out.left = 0;
+  });
+  return out;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   OCEAN WAVES
+═══════════════════════════════════════════════════════════ */
+function OceanWaves() {
+  return (
+    <div style={{position:'absolute',bottom:0,left:0,right:0,height:'130px',overflow:'hidden',zIndex:1,pointerEvents:'none'}}>
+      {[
+        {cls:'wave-3', color:'rgba(99,102,241,0.05)',  d:'M0,95 C240,45 480,130 720,95 C960,45 1200,130 1440,95 C1680,45 1920,130 2160,95 C2400,45 2640,130 2880,95 L2880,130 L0,130 Z'},
+        {cls:'wave-2', color:'rgba(129,140,248,0.07)', d:'M0,75 C360,15 480,120 720,75 C960,15 1200,120 1440,75 C1680,15 1920,120 2160,75 C2400,15 2640,120 2880,75 L2880,130 L0,130 Z'},
+        {cls:'wave-1', color:'rgba(167,139,250,0.09)', d:'M0,85 C180,30 360,115 540,85 C720,30 900,115 1080,85 C1260,30 1440,115 1620,85 C1800,30 1980,115 2160,85 C2340,30 2520,115 2700,85 C2880,30 2880,85 2880,85 L2880,130 L0,130 Z'},
+      ].map((w,i) => (
+        <svg key={i} className={`${w.cls} absolute bottom-0`}
+             style={{width:'200%',height:'100%',display:'block'}}
+             viewBox="0 0 2880 130" preserveAspectRatio="none">
+          <path d={w.d} fill={w.color}/>
+        </svg>
+      ))}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════
+   TERMINAL WIDGET
+═══════════════════════════════════════════════════════════ */
+function TerminalWidget({ lines, termRef }) {
+  const colors = { info: '#818cf8', ok: '#22c55e', warn: '#fbbf24', error: '#f87171' };
+  const badges = { info: 'INFO', ok: 'OK', warn: 'WARN', error: 'ERR' };
+
+  return (
+    <div style={{background:'#0a0a10', border:'1px solid #252536', borderRadius:'12px', overflow:'hidden'}}>
+      {/* Title bar */}
+      <div className="flex items-center gap-2 px-4 py-3" style={{background:'#111119', borderBottom:'1px solid #252536'}}>
+        <div className="flex gap-1.5">
+          <div className="w-2.5 h-2.5 rounded-full" style={{background:'#ff5f56'}}/>
+          <div className="w-2.5 h-2.5 rounded-full" style={{background:'#ffbd2e'}}/>
+          <div className="w-2.5 h-2.5 rounded-full" style={{background:'#27c93f'}}/>
+        </div>
+        <div className="flex items-center gap-2 ml-2">
+          <Icons.Terminal size={12} style={{color:'#818cf8'}}/>
+          <span className="font-mono text-xs" style={{color:'#818cf8', letterSpacing:'0.08em'}}>analytics.pipeline — zsh</span>
+        </div>
+        <div className="ml-auto flex items-center gap-1.5">
+          <span className="status-dot inline-block w-1.5 h-1.5 rounded-full" style={{background:'#22c55e'}}/>
+          <span className="font-mono text-xs" style={{color:'#8892a4', fontSize:'0.6rem'}}>LIVE</span>
+        </div>
+      </div>
+      {/* Log body */}
+      <div ref={termRef} className="terminal-body overflow-y-auto py-3 px-4 space-y-1.5" style={{height:'220px'}}>
+        {lines.map(l => (
+          <div key={l.id} className="flex gap-3 items-start font-mono" style={{fontSize:'0.72rem', lineHeight:'1.5'}}>
+            <span style={{color:'#8892a4', flexShrink:0}}>{l.ts}</span>
+            <span className="font-bold px-1.5 rounded" style={{
+              color: colors[l.t], background: colors[l.t] + '18',
+              flexShrink:0, fontSize:'0.65rem', letterSpacing:'0.04em',
+            }}>{badges[l.t]}</span>
+            <span style={{color: l.t==='ok' ? '#c8f5d4' : l.t==='warn' ? '#fef3c7' : '#c4cad4'}}>{l.m}</span>
+          </div>
+        ))}
+        <div className="flex gap-3 items-center font-mono" style={{fontSize:'0.72rem'}}>
+          <span style={{color:'#8892a4'}}>{timestamp()}</span>
+          <span style={{color:'#818cf8'}}>›</span>
+          <span style={{color:'#8892a4'}}>_</span>
+          <span className="inline-block w-1.5 h-3.5 ml-0.5" style={{background:'#818cf8', animation:'status-pulse 1s ease-in-out infinite'}}/>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════
+   HOBBY CARDS
+═══════════════════════════════════════════════════════════ */
+function HobbyCards() {
+  const hobbies = [
+    {
+      em: '🥋', title: 'Brazilian Jiu-Jitsu', desc: 'Ground game, positional control and submissions.',
+      extra: <div className="flex justify-center gap-1 mt-2">
+        {[1,2,3].map(i => <div key={i} className="belt-stripe"/>)}
+      </div>
+    },
+    { em: '🏴‍☠️', emClass: 'op-em', title: 'Anime', desc: 'One Piece lover. Zoro is the GOAT.' },
+    { em: '🎮', emClass: 'game-em', title: 'Gaming', desc: 'Patiently waiting for Pokopia & Tomodachi Life.' },
+    {
+      flip: true,
+      front: { em: '🃏', title: 'Card Magic', desc: 'Hover to reveal a trick...' },
+      back:  { em: '✨🂡✨', emStyle:{fontSize:'1.4rem'}, title: 'Your card...', desc: 'was the Ace of Spades.' },
+    },
+    { em: '🛹', emClass: 'skate-em', title: 'Skating', desc: 'Trying not to fall.' },
+    { em: '📊', title: 'Data Everything', desc: 'Turned my BJJ obsession into an ADCC data analysis.' },
+  ];
+
+  return (
+    <div style={{display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'10px', marginTop:'10px'}}>
+      {hobbies.map((h, i) => {
+        if (h.flip) return (
+          <div key={i} className="hcard flip-card" style={{padding:0}}>
+            <div className="flip-inner px-3.5 py-4">
+              <div className="flip-front text-center">
+                <span style={{fontSize:'1.9rem', display:'block', marginBottom:'8px'}}>{h.front.em}</span>
+                <h4 style={{fontSize:'0.82rem', fontWeight:700, marginBottom:'4px'}}>{h.front.title}</h4>
+                <p style={{fontSize:'0.72rem', color:'#8892a4', lineHeight:1.45}}>{h.front.desc}</p>
+              </div>
+              <div className="flip-back text-center">
+                <span style={{fontSize:'1.4rem', display:'block', marginBottom:'6px'}}>{h.back.em}</span>
+                <h4 style={{fontSize:'0.82rem', fontWeight:700, marginBottom:'4px'}}>{h.back.title}</h4>
+                <p style={{fontSize:'0.72rem', color:'#8892a4', lineHeight:1.45}}>{h.back.desc}</p>
+              </div>
+            </div>
+          </div>
+        );
+        return (
+          <div key={i} className="hcard">
+            <span className={h.emClass || ''} style={{fontSize:'1.9rem', display:'block', marginBottom:'9px'}}>{h.em}</span>
+            <h4 style={{fontSize:'0.82rem', fontWeight:700, marginBottom:'4px'}}>{h.title}</h4>
+            <p style={{fontSize:'0.72rem', color:'#8892a4', lineHeight:1.45}}>{h.desc}</p>
+            {h.extra}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════
+   TAG
+═══════════════════════════════════════════════════════════ */
+function Tag({ label }) {
+  return (
+    <span className="text-xs font-medium rounded-full px-2.5 py-0.5 transition-all duration-200 cursor-default"
+          style={{
+            background:'rgba(129,140,248,0.1)', color:'#818cf8',
+            border:'1px solid rgba(129,140,248,0.25)',
+            fontSize:'0.71rem',
+          }}
+          onMouseEnter={e => { e.target.style.background='#818cf8'; e.target.style.color='#fff'; }}
+          onMouseLeave={e => { e.target.style.background='rgba(129,140,248,0.1)'; e.target.style.color='#818cf8'; }}>
+      {label}
+    </span>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════
+   HOME TAB
+═══════════════════════════════════════════════════════════ */
+function HomeTab({ canvasRef, heroRef, coords, termLines, termRef, setTab }) {
+  return (
+    <div className="tab-enter">
+      {/* ── Hero ── */}
+      <section ref={heroRef} style={{minHeight:'100vh', display:'flex', alignItems:'center', paddingTop:'56px', position:'relative', overflow:'hidden', background:'#0d0d14'}}>
+        <canvas ref={canvasRef} style={{position:'absolute',inset:0,zIndex:0,pointerEvents:'none',display:'block'}}/>
+        <HudOverlay coords={coords}/>
+
+        {/* Cursor glow */}
+        <div style={{position:'absolute',zIndex:1,pointerEvents:'none',width:'380px',height:'380px',borderRadius:'50%',
+          background:'radial-gradient(circle, rgba(129,140,248,0.07) 0%, rgba(251,191,36,0.03) 40%, transparent 70%)',
+          transform:'translate(-50%,-50%)', left:'50%', top:'50%', transition:'opacity 0.4s'}}
+          id="cursor-glow"/>
+
+        {/* Ambient glow */}
+        <div style={{position:'absolute', top:'-200px', right:'-200px', width:'600px', height:'600px', borderRadius:'50%',
+          background:'radial-gradient(circle, rgba(129,140,248,0.09) 0%, transparent 70%)', pointerEvents:'none', zIndex:0}}/>
+
+        {/* Content */}
+        <div className="relative w-full px-6 mx-auto" style={{maxWidth:'1000px', zIndex:2}}>
+          <div style={{padding:'72px 0 80px', display:'grid', gridTemplateColumns:'1fr auto', gap:'48px', alignItems:'center'}}>
+            <div>
+              <div className="flex items-center gap-2 mb-4" style={{fontSize:'0.75rem', fontWeight:700, letterSpacing:'0.12em', textTransform:'uppercase', color:'#818cf8'}}>
+                <div style={{width:'28px', height:'2px', background:'#818cf8'}}/>
+                Data Science · UC San Diego
+              </div>
+              <h1 style={{fontSize:'clamp(2.5rem,6vw,4rem)', fontWeight:800, letterSpacing:'-0.035em', lineHeight:1.08, marginBottom:'16px'}}>
+                Yra Climaco
+              </h1>
+              <p style={{fontSize:'clamp(0.95rem,2vw,1.05rem)', color:'#8892a4', maxWidth:'520px', lineHeight:1.85, marginBottom:'32px'}}>
+                Second-year studying Data Science (GPA 3.8) with a Minor in Business Analytics.
+                Passionate about <strong style={{color:'#e2e8f0'}}>product analytics</strong> at B2C consumer tech —
+                gaming, streaming and entertainment.
+              </p>
+              <div className="flex gap-3 flex-wrap">
+                <button onClick={() => setTab('Projects')}
+                        className="flex items-center gap-2 font-semibold transition-all duration-200"
+                        style={{background:'#818cf8', color:'#fff', border:'none', padding:'10px 22px', borderRadius:'8px', fontSize:'0.88rem', cursor:'pointer', fontFamily:'inherit'}}
+                        onMouseEnter={e => { e.currentTarget.style.filter='brightness(1.1)'; e.currentTarget.style.transform='translateY(-2px)'; e.currentTarget.style.boxShadow='0 8px 24px rgba(129,140,248,0.35)'; }}
+                        onMouseLeave={e => { e.currentTarget.style.filter=''; e.currentTarget.style.transform=''; e.currentTarget.style.boxShadow=''; }}>
+                  View Projects <Icons.ChevronRight size={14}/>
+                </button>
+                <a href="mailto:climacoyra@gmail.com"
+                   className="flex items-center gap-2 font-semibold transition-all duration-200"
+                   style={{background:'transparent', color:'#e2e8f0', border:'1px solid #252536', padding:'10px 22px', borderRadius:'8px', fontSize:'0.88rem', textDecoration:'none'}}
+                   onMouseEnter={e => { e.currentTarget.style.borderColor='#818cf8'; e.currentTarget.style.color='#818cf8'; e.currentTarget.style.transform='translateY(-2px)'; }}
+                   onMouseLeave={e => { e.currentTarget.style.borderColor='#252536'; e.currentTarget.style.color='#e2e8f0'; e.currentTarget.style.transform=''; }}>
+                  Get in Touch
+                </a>
+              </div>
+              <div className="flex gap-2 flex-wrap mt-10">
+                {[
+                  { href:'https://github.com/yraclimaco', Icon: Icons.Github, label:'GitHub' },
+                  { href:'https://www.linkedin.com/in/yra-climaco/', Icon: Icons.Linkedin, label:'LinkedIn' },
+                  { href:'mailto:climacoyra@gmail.com', Icon: Icons.Mail, label:'Email' },
+                ].map(s => (
+                  <a key={s.label} href={s.href} target="_blank" rel="noopener"
+                     className="flex items-center gap-2 transition-all duration-200"
+                     style={{fontSize:'0.8rem', color:'#8892a4', border:'1px solid #252536', padding:'6px 13px', borderRadius:'7px', textDecoration:'none'}}
+                     onMouseEnter={e => { e.currentTarget.style.color='#818cf8'; e.currentTarget.style.borderColor='#818cf8'; }}
+                     onMouseLeave={e => { e.currentTarget.style.color='#8892a4'; e.currentTarget.style.borderColor='#252536'; }}>
+                    <s.Icon size={13}/> {s.label}
+                  </a>
+                ))}
+              </div>
+            </div>
+
+            {/* Photo */}
+            <div style={{flexShrink:0, position:'relative'}}>
+              <div style={{width:'200px', height:'200px', borderRadius:'50%', padding:'3px',
+                background:'linear-gradient(135deg, #818cf8 0%, transparent 60%)', position:'relative'}}>
+                <div className="spin-ring" style={{position:'absolute', inset:'-4px', borderRadius:'50%',
+                  background:'linear-gradient(135deg, rgba(129,140,248,0.35), transparent 60%)'}}/>
+                <div style={{width:'194px', height:'194px', borderRadius:'50%', overflow:'hidden', border:'3px solid #0d0d14', position:'relative', zIndex:1}}>
+                  <img src="photo.jpg" alt="Yra Climaco" style={{width:'100%', height:'100%', objectFit:'cover', objectPosition:'center top', display:'block'}}
+                    onError={e => { e.target.parentElement.innerHTML='<div style="width:100%;height:100%;background:#171723;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:#8892a4;font-size:0.72rem;text-align:center;"><span style=\'font-size:2.5rem\'>👤</span><small>photo.jpg</small></div>'; }}/>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <OceanWaves/>
+      </section>
+
+      {/* ── About ── */}
+      <section style={{padding:'90px 0', background:'#0d0d14'}}>
+        <div className="px-6 mx-auto" style={{maxWidth:'1000px'}}>
+          <div style={{fontSize:'0.7rem', fontWeight:700, letterSpacing:'0.13em', textTransform:'uppercase', color:'#818cf8', marginBottom:'6px'}}>About</div>
+          <h2 style={{fontSize:'clamp(1.5rem,3vw,2rem)', fontWeight:800, letterSpacing:'-0.025em', marginBottom:'40px'}}>Building at the intersection of data and product</h2>
+          <div style={{width:'100%', height:'1px', background:'#252536', marginBottom:'52px'}}/>
+
+          <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:'52px', alignItems:'start'}}>
+            {/* Left col */}
+            <div>
+              <div style={{color:'#8892a4', lineHeight:1.85, marginBottom:'14px', fontSize:'0.91rem'}}>
+                I'm a second-year Data Science student at <strong style={{color:'#e2e8f0'}}>UC San Diego</strong> (GPA 3.8)
+                minoring in Business Analytics. My dream is to help turn raw data into product insights that move decisions at consumer tech companies.
+              </div>
+              <div style={{color:'#8892a4', lineHeight:1.85, marginBottom:'14px', fontSize:'0.91rem'}}>
+                My focus is <strong style={{color:'#e2e8f0'}}>product analytics at B2C companies</strong> in gaming, streaming, and entertainment.
+                I enjoy the full stack: PostgreSQL ETL pipelines, ML classifiers, and presenting findings to non-technical stakeholders.
+              </div>
+              <div style={{color:'#8892a4', lineHeight:1.85, marginBottom:'28px', fontSize:'0.91rem'}}>
+                Active member of the <strong style={{color:'#e2e8f0'}}>Data Science Student Society (DS3)</strong>.
+                Completed one showcase cycle (3rd of 10 teams) and working through my second. Sharpening SQL skills daily.
+              </div>
+
+              {/* Stats */}
+              <div className="flex gap-6 flex-wrap mb-8">
+                {[
+                  {target:3.8, decimals:1, suffix:'', label:'GPA'},
+                  {target:4,   decimals:0, suffix:'+', label:'Projects'},
+                  {target:3,   decimals:0, suffix:'rd', label:'DS3 Showcase'},
+                ].map(s => (
+                  <div key={s.label} style={{cursor:'default'}}>
+                    <div style={{fontSize:'2rem', fontWeight:800, color:'#818cf8', letterSpacing:'-0.03em', lineHeight:1}}>
+                      <CountUp target={s.target} decimals={s.decimals} suffix={s.suffix}/>
+                    </div>
+                    <div style={{fontSize:'0.7rem', color:'#8892a4', marginTop:'3px', fontWeight:500}}>{s.label}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Terminal widget */}
+              <div style={{marginBottom:'8px', fontSize:'0.68rem', fontWeight:700, letterSpacing:'0.1em', textTransform:'uppercase', color:'#818cf8', display:'flex', alignItems:'center', gap:'6px'}}>
+                <Icons.Terminal size={12}/> Live Analytics Terminal
+              </div>
+              <TerminalWidget lines={termLines} termRef={termRef}/>
+            </div>
+
+            {/* Right col */}
+            <div>
+              {/* Education card */}
+              <div style={{background:'#171723', border:'1px solid #252536', borderRadius:'12px', padding:'22px', marginBottom:'24px', transition:'border-color 0.2s'}}
+                   onMouseEnter={e => e.currentTarget.style.borderColor='rgba(129,140,248,0.4)'}
+                   onMouseLeave={e => e.currentTarget.style.borderColor='#252536'}>
+                <h3 style={{fontSize:'0.96rem', fontWeight:700, marginBottom:'3px'}}>University of California, San Diego</h3>
+                <div style={{fontSize:'0.82rem', color:'#818cf8', marginBottom:'6px'}}>B.S. Data Science · Minor in Business Analytics</div>
+                <div style={{fontSize:'0.75rem', color:'#8892a4', marginBottom:'10px'}}>Sept. 2024 – June 2028 · DS3 Member</div>
+                <div style={{fontSize:'0.75rem', color:'#8892a4', lineHeight:1.65}}>
+                  <strong style={{fontWeight:600}}>Coursework:</strong> Practice of Data Science · Statistical Data Analysis and Inference ·
+                  Theoretical Foundations of DS · Programming for DS · Applied Market Research ·
+                  Data Structures and Algorithms · Linear Algebra
+                </div>
+              </div>
+
+              <div style={{fontSize:'0.7rem', fontWeight:700, letterSpacing:'0.1em', textTransform:'uppercase', color:'#818cf8', marginBottom:'14px'}}>Beyond the Data</div>
+              <HobbyCards/>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════
+   EXPERIENCE TAB
+═══════════════════════════════════════════════════════════ */
+function ExperienceTab() {
+  const items = [
+    {
+      date: 'Feb. 2026\n– Jun. 2026',
+      role: 'Data Science Intern',
+      company: 'Center for Community Energy (CCE) · San Diego, CA',
+      bullets: [
+        'Developed a solar outreach database for the "Move Now" renewable energy initiative targeting San Diego County businesses and nonprofits.',
+        'Built a PostgreSQL ETL pipeline to ingest, clean, and merge SD commercial property and tax records; engineered a unified outreach table using CTEs, JOINs, CASE WHEN logic, and UNION ALL.',
+        'Surfaced tax-exempt organizations absent from business tax data via LEFT JOIN logic, expanding the outreach target pool beyond standard filters.',
+      ],
+      tags: ['PostgreSQL','ETL','CTEs','UNION ALL','Data Engineering'],
+    },
+    {
+      date: 'Feb. 2023\n– Present',
+      role: 'Pool Lifeguard & Swim Instructor',
+      company: 'LA County / Castaic Aquatic Center · Santa Clarita, CA',
+      bullets: [
+        'Instructed swim lessons to children and adults, breaking down complex technique into clear, progressive steps for non-technical audiences.',
+        'Coordinated with a team of guards to maintain 100% coverage of high-traffic zones, resulting in zero safety incidents.',
+      ],
+      tags: [],
+    },
+  ];
+
+  return (
+    <div className="tab-enter px-6 mx-auto" style={{maxWidth:'1000px', paddingTop:'90px', paddingBottom:'90px'}}>
+      <div style={{fontSize:'0.7rem', fontWeight:700, letterSpacing:'0.13em', textTransform:'uppercase', color:'#818cf8', marginBottom:'6px'}}>Experience</div>
+      <h2 style={{fontSize:'clamp(1.5rem,3vw,2rem)', fontWeight:800, letterSpacing:'-0.025em', marginBottom:'40px'}}>Where I've built things</h2>
+      <div style={{width:'100%', height:'1px', background:'#252536', marginBottom:'52px'}}/>
+
+      <div>
+        {items.map((item, i) => (
+          <div key={i} style={{display:'grid', gridTemplateColumns:'108px 1fr', gap:'28px', paddingBottom:'44px', position:'relative'}}>
+            {i < items.length - 1 && (
+              <div style={{position:'absolute', left:'calc(108px + 28px + 11px - 1px)', top:'14px', bottom:0, width:'1px', background:'#252536'}}/>
+            )}
+            <div style={{fontSize:'0.74rem', color:'#8892a4', textAlign:'right', paddingTop:'2px', lineHeight:1.5}}>
+              {item.date.split('\n').map((l,j) => <div key={j}>{l}</div>)}
+              {item.badge && (
+                <div style={{display:'inline-block', marginTop:'5px', background:'rgba(129,140,248,0.12)', border:'1px solid rgba(129,140,248,0.28)', color:'#818cf8', fontSize:'0.65rem', fontWeight:700, padding:'2px 7px', borderRadius:'4px', letterSpacing:'0.04em'}}>
+                  {item.badge}
+                </div>
+              )}
+            </div>
+            <div style={{paddingLeft:'22px', borderLeft:'2px solid #252536', position:'relative'}} className="tl-dot">
+              <div style={{fontSize:'0.96rem', fontWeight:700}}>{item.role}</div>
+              <div style={{fontSize:'0.82rem', color:'#818cf8', margin:'2px 0 12px'}}>{item.company}</div>
+              <ul style={{listStyle:'none'}}>
+                {item.bullets.map((b, j) => (
+                  <li key={j} style={{fontSize:'0.84rem', color:'#8892a4', lineHeight:1.7, paddingLeft:'16px', position:'relative', marginBottom:'5px'}}>
+                    <span style={{position:'absolute', left:0, color:'#818cf8', fontSize:'0.7rem', top:'4px'}}>→</span>
+                    {b}
+                  </li>
+                ))}
+              </ul>
+              {item.tags.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 mt-3">
+                  {item.tags.map(t => <Tag key={t} label={t}/>)}
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════
+   PROJECTS TAB
+═══════════════════════════════════════════════════════════ */
+const PROJECTS = [
+  {
+    id: 1,
+    category: 'Machine Learning',
+    pinned: true,
+    badge: '🏆 DS3 Cycle 1 · 3rd Place Showcase',
+    title: 'TubeScope — Viral Trend Predictor',
+    links: [{ label:'GitHub ↗', href:'https://github.com/yraclimaco' }],
+    bullets: [
+      { b:'Selected for competitive DS3 project team (top 16%); awarded 3rd place out of 10 teams at Showcase (Oct–Dec 2025).' },
+      { b:'Used Kaplan-Meier Survival Analysis to identify 83% viral trend drop-off; built Random Forest classifier achieving 68% Recall and 3× Precision lift.' },
+      { b:'Built automated Python pipeline to ingest data from YouTube Data API, powering live dashboard analytics with engineered metadata features.' },
+    ],
+    tags: ['Python','Pandas','Scikit-learn','Kaplan-Meier','YouTube API','Random Forest','Plotly'],
+    chart: {
+      title: '▸ MODEL METRICS',
+      bars: [{v:68,l:'Recall'},{v:73,l:'Acc.'},{v:83,l:'Drop%'},{v:89,l:'AUC'}],
+    },
+  },
+  {
+    id: 2,
+    category: 'Machine Learning',
+    badge: '🌊 Live Deployment · May–Jun 2026',
+    title: 'SurfCast SD — Surf Forecast & ML Rating Predictor',
+    links: [{ label:'Live Site ↗', href:'#' }],
+    bullets: [
+      { b:'Built a live surf forecasting system predicting 7-tier quality ratings for three San Diego breaks, trained on 303,000+ hourly ocean observations across three years.' },
+      { b:'Trained and tuned five classifiers with RandomizedSearchCV; selected balanced Random Forest on macro F1 (0.541) over raw accuracy to handle 47% class imbalance — the only model producing meaningful predictions across all 7 tiers.' },
+      { b:'Provisioned GCS storage buckets and configured automated hourly Cloud Run pipeline writing live predictions for dashboard consumption.' },
+      { b:'Time series EDA confirmed SD daily wind cycle (5 mph morning vs 10.8 mph midday) as a key predictive signal.' },
+    ],
+    tags: ['Python','Scikit-learn','GCP','Cloud Run','GCS','Random Forest','Time-Series EDA','Plotly'],
+    chart: {
+      title: '▸ CLASSIFIER COMPARISON',
+      bars: [{v:38,l:'Log.Reg'},{v:44,l:'KNN'},{v:54,l:'RF'},{v:51,l:'XGB'}],
+    },
+  },
+  {
+    id: 3,
+    category: 'Machine Learning',
+    badge: '⚔️ DSC80 Final Project · Live Deployment',
+    title: 'Snowball Effect Analysis in Professional LoL',
+    links: [
+      { label:'Live Site ↗', href:'https://yraclimaco.github.io/lol-snowball-analysis' },
+      { label:'GitHub ↗',   href:'https://github.com/yraclimaco/lol-snowball-analysis' },
+    ],
+    bullets: [
+      { b:'Analyzed 9,236 professional matches; permutation test confirmed early gold advantages predict outcomes (p < 0.001).' },
+      { b:'Built Random Forest classifier on 15-minute game state achieving 73.6% test accuracy, outperforming a 50% baseline by 24%.' },
+      { b:'Deployed full data science lifecycle as interactive GitHub Pages report including EDA, missingness analysis, hypothesis testing, and fairness analysis.' },
+    ],
+    tags: ['Python','Pandas','Scikit-learn','Plotly','Random Forest','Hypothesis Testing','GitHub Pages'],
+    chart: {
+      title: '▸ WIN RATE BY GOLD DIFF',
+      bars: [{v:34,l:'−5k'},{v:48,l:'0k'},{v:67,l:'+5k'},{v:81,l:'+10k'}],
+    },
+  },
+  {
+    id: 4,
+    category: 'Data Engineering',
+    badge: '🌱 Internship Project · CCE',
+    title: 'Solar Outreach ETL Pipeline',
+    links: [],
+    bullets: [
+      { b:'Built a full PostgreSQL ETL pipeline for a nonprofit\'s solar outreach campaign across San Diego County.' },
+      { b:'Merged commercial property and tax records into a unified outreach table using CTEs, JOINs, CASE WHEN logic, and UNION ALL.' },
+      { b:'Surfaced tax-exempt organizations absent from business tax data via LEFT JOIN logic, expanding the addressable outreach pool beyond standard filters.' },
+    ],
+    tags: ['PostgreSQL','ETL Pipeline','CTEs','UNION ALL','LEFT JOIN','Data Engineering'],
+  },
+  {
+    id: 5,
+    category: 'Product Analytics',
+    badge: '🥋 Personal Project · EDA',
+    title: 'ADCC World Championship Grappling Analysis',
+    links: [{ label:'GitHub ↗', href:'https://github.com/yraclimaco/ADCC-Grappling-Analysis' }],
+    bullets: [
+      { b:'Exploratory analysis of ADCC World Championship match records from 1998–2022 to uncover the sport\'s evolving strategic meta.' },
+      { b:'Investigated submission technique trends over time — finding the Rear Naked Choke remains the highest-percentage finish alongside the rise of specialized leg attacks.' },
+      { b:'Analyzed decision patterns by round, revealing championship finals skew toward points-based strategies vs. submission-focused prelims.' },
+    ],
+    tags: ['Python','Pandas','Matplotlib','Seaborn','EDA','Jupyter'],
+  },
+  {
+    id: 6,
+    category: 'Machine Learning',
+    badge: '🚕 Regression Model · Sept 2025',
+    title: 'Uber & Lyft Fare Prediction Model',
+    links: [{ label:'GitHub ↗', href:'https://github.com/yraclimaco' }],
+    bullets: [
+      { b:'Analyzed 600k+ ride-share transactions using Linear Regression (R² = 0.93) to model fare pricing patterns.' },
+      { b:'Engineered time-based features identifying Surge Multiplier and Distance as primary cost drivers.' },
+      { b:'Performed residual analysis revealing degraded accuracy on Luxury tier rides due to class imbalance.' },
+    ],
+    tags: ['Python','Pandas','Scikit-learn','NumPy','Matplotlib','Seaborn','Linear Regression'],
+  },
+];
+
+const FILTERS = ['All','Machine Learning','Data Engineering','Product Analytics'];
+
+function ProjectCard({ project }) {
+  const [visible, setVisible] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setVisible(true); obs.disconnect(); }}, {threshold:0.07});
+    if (ref.current) obs.observe(ref.current);
+    return () => obs.disconnect();
+  }, []);
+
+  return (
+    <div ref={ref} className={`pcard-wrap relative ${visible ? 'sfi vis' : 'sfi'}`}>
+      <div style={{
+        background:'#171723', border:'1px solid #252536', borderRadius:'14px',
+        padding:'26px 28px', transition:'all 0.25s', position:'relative', overflow:'hidden',
+      }}
+        onMouseEnter={e => { e.currentTarget.style.borderColor='rgba(129,140,248,0.35)'; e.currentTarget.style.boxShadow='0 8px 32px rgba(0,0,0,0.45)'; e.currentTarget.style.transform='translateY(-2px)'; }}
+        onMouseLeave={e => { e.currentTarget.style.borderColor='#252536'; e.currentTarget.style.boxShadow=''; e.currentTarget.style.transform=''; }}>
+        {/* Gradient top accent on hover — via ::after workaround with a div */}
+        <div style={{position:'absolute',top:0,left:0,right:0,height:'2px',background:'linear-gradient(90deg, #818cf8 0%, transparent 65%)'}}/>
+
+        <div className="flex justify-between items-start gap-3 mb-3">
+          <div>
+            <div style={{fontSize:'0.68rem', fontWeight:700, color:'#818cf8', letterSpacing:'0.07em', textTransform:'uppercase', marginBottom:'4px'}}>{project.badge}</div>
+            <div style={{fontSize:'1rem', fontWeight:700, color:'#e2e8f0'}}>{project.title}</div>
+          </div>
+          {project.links.length > 0 && (
+            <div className="flex gap-2 flex-shrink-0">
+              {project.links.map(l => (
+                <a key={l.label} href={l.href} target="_blank" rel="noopener"
+                   className="flex items-center gap-1"
+                   style={{fontSize:'0.75rem', color:'#8892a4', border:'1px solid #252536', padding:'4px 10px', borderRadius:'6px', textDecoration:'none', transition:'all 0.2s', whiteSpace:'nowrap'}}
+                   onMouseEnter={e => { e.currentTarget.style.color='#818cf8'; e.currentTarget.style.borderColor='#818cf8'; }}
+                   onMouseLeave={e => { e.currentTarget.style.color='#8892a4'; e.currentTarget.style.borderColor='#252536'; }}>
+                  {l.label}
+                </a>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <ul style={{listStyle:'none', marginBottom:'16px'}}>
+          {project.bullets.map((b,i) => (
+            <li key={i} style={{fontSize:'0.84rem', color:'#8892a4', lineHeight:1.7, paddingLeft:'14px', position:'relative', marginBottom:'3px'}}>
+              <span style={{position:'absolute',left:0,color:'#818cf8',fontWeight:900,fontSize:'1rem',lineHeight:1.5}}>·</span>
+              <span dangerouslySetInnerHTML={{__html: b.b.replace(/(\*\*|<b>)(.*?)(\*\*|<\/b>)/g, '<strong style="color:#e2e8f0;font-weight:600">$2</strong>')}}/>
+            </li>
+          ))}
+        </ul>
+
+        <div className="flex flex-wrap gap-1.5">
+          {project.tags.map(t => <Tag key={t} label={t}/>)}
+        </div>
+
+        {/* Mini chart overlay */}
+        {project.chart && (
+          <MiniChart title={project.chart.title} bars={project.chart.bars}/>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function ProjectsTab() {
+  const [activeFilter, setActiveFilter] = useState('All');
+  const filtered = useMemo(() => activeFilter === 'All' ? PROJECTS : PROJECTS.filter(p => p.category === activeFilter), [activeFilter]);
+  const pinnedProject = filtered.find(p => p.pinned);
+  const otherProjects = filtered.filter(p => !p.pinned);
+
+  return (
+    <div className="tab-enter px-6 mx-auto" style={{maxWidth:'1000px', paddingTop:'90px', paddingBottom:'90px'}}>
+      <div style={{fontSize:'0.7rem', fontWeight:700, letterSpacing:'0.13em', textTransform:'uppercase', color:'#818cf8', marginBottom:'6px'}}>Projects</div>
+      <h2 style={{fontSize:'clamp(1.5rem,3vw,2rem)', fontWeight:800, letterSpacing:'-0.025em', marginBottom:'24px'}}>Things I've built and analyzed</h2>
+
+      {/* Filter pills */}
+      <div className="flex gap-2 flex-wrap mb-10">
+        <div className="flex items-center gap-1.5 mr-2" style={{color:'#8892a4', fontSize:'0.75rem'}}>
+          <Icons.Filter size={12}/> Filter:
+        </div>
+        {FILTERS.map(f => (
+          <button key={f} onClick={() => setActiveFilter(f)}
+                  className={`pill text-xs font-medium px-3.5 py-1.5 rounded-full ${activeFilter===f?'active':''}`}
+                  style={{
+                    background: activeFilter===f ? '#818cf8' : 'rgba(129,140,248,0.08)',
+                    color: activeFilter===f ? '#fff' : '#8892a4',
+                    border: `1px solid ${activeFilter===f ? '#818cf8' : 'rgba(129,140,248,0.2)'}`,
+                    cursor:'pointer', fontFamily:'inherit',
+                  }}>
+            {f}
+          </button>
+        ))}
+      </div>
+
+      <div style={{width:'100%', height:'1px', background:'#252536', marginBottom:'32px'}}/>
+
+      <div style={{display:'flex', flexDirection:'column', gap:'16px'}}>
+        {/* Pinned card */}
+        {pinnedProject && (
+          <div key={pinnedProject.id + '-' + activeFilter}>
+            <div className="flex items-center gap-2 mb-2.5" style={{fontSize:'0.68rem', fontWeight:700, color:'#818cf8', letterSpacing:'0.05em', textTransform:'uppercase'}}>
+              <Icons.Pin size={12}/> Pinned — Favorite Project
+            </div>
+            <div className="pin-wrap">
+              <div style={{borderRadius:'14px', background:'#171723', padding:'26px 28px', position:'relative', overflow:'hidden'}}>
+                <div style={{position:'absolute',top:0,left:0,right:0,height:'2px',background:'linear-gradient(90deg, #818cf8 0%, #a78bfa 50%, #fbbf24 100%)'}}/>
+                <div className="pcard-wrap relative">
+                  <div className="flex justify-between items-start gap-3 mb-3">
+                    <div>
+                      <div style={{fontSize:'0.68rem', fontWeight:700, color:'#818cf8', letterSpacing:'0.07em', textTransform:'uppercase', marginBottom:'4px'}}>{pinnedProject.badge}</div>
+                      <div style={{fontSize:'1rem', fontWeight:700, color:'#e2e8f0'}}>{pinnedProject.title}</div>
+                    </div>
+                    <div className="flex gap-2">
+                      {pinnedProject.links.map(l => (
+                        <a key={l.label} href={l.href} target="_blank" rel="noopener"
+                           style={{fontSize:'0.75rem', color:'#8892a4', border:'1px solid #252536', padding:'4px 10px', borderRadius:'6px', textDecoration:'none', transition:'all 0.2s'}}
+                           onMouseEnter={e => { e.currentTarget.style.color='#818cf8'; e.currentTarget.style.borderColor='#818cf8'; }}
+                           onMouseLeave={e => { e.currentTarget.style.color='#8892a4'; e.currentTarget.style.borderColor='#252536'; }}>
+                          {l.label}
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                  <ul style={{listStyle:'none', marginBottom:'16px'}}>
+                    {pinnedProject.bullets.map((b,i) => (
+                      <li key={i} style={{fontSize:'0.84rem', color:'#8892a4', lineHeight:1.7, paddingLeft:'14px', position:'relative', marginBottom:'3px'}}>
+                        <span style={{position:'absolute',left:0,color:'#818cf8',fontWeight:900,fontSize:'1rem',lineHeight:1.5}}>·</span>
+                        {b.b}
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="flex flex-wrap gap-1.5">
+                    {pinnedProject.tags.map(t => <Tag key={t} label={t}/>)}
+                  </div>
+                  {pinnedProject.chart && <MiniChart title={pinnedProject.chart.title} bars={pinnedProject.chart.bars}/>}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Other cards */}
+        {otherProjects.map(p => <ProjectCard key={p.id + '-' + activeFilter} project={p}/>)}
+
+        {filtered.length === 0 && (
+          <div className="text-center py-16" style={{color:'#8892a4'}}>
+            <Icons.BarChart size={32} style={{margin:'0 auto 12px', opacity:0.4}}/>
+            <div style={{fontSize:'0.88rem'}}>No projects match this filter yet — more coming soon.</div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SKILLS TAB
+═══════════════════════════════════════════════════════════ */
+function SkillsTab() {
+  const groups = [
+    { icon: Icons.Code,     label:'Languages',        skills:['Python','SQL (PostgreSQL)'] },
+    { icon: Icons.Activity, label:'Data Analysis',    skills:['Pandas','NumPy','ETL Pipelines','A/B Testing','Hypothesis Testing','Time-Series Analysis'] },
+    { icon: Icons.Cpu,      label:'Machine Learning', skills:['Scikit-learn','Random Forests','Classification','Regression','Feature Engineering','Survival Analysis'] },
+    { icon: Icons.BarChart, label:'Cloud & Visualization', skills:['GCP (Cloud Run · GCS)','Tableau','Plotly','Matplotlib','Seaborn'] },
+    { icon: Icons.BarChart, label:'Tools & AI', skills:['Git','Jupyter','VS Code','Excel','Claude Code','ChatGPT','Gemini'] },
+  ];
+
+  return (
+    <div className="tab-enter px-6 mx-auto" style={{maxWidth:'1000px', paddingTop:'90px', paddingBottom:'90px'}}>
+      <div style={{fontSize:'0.7rem', fontWeight:700, letterSpacing:'0.13em', textTransform:'uppercase', color:'#818cf8', marginBottom:'6px'}}>Skills</div>
+      <h2 style={{fontSize:'clamp(1.5rem,3vw,2rem)', fontWeight:800, letterSpacing:'-0.025em', marginBottom:'40px'}}>Tools of the trade</h2>
+      <div style={{width:'100%', height:'1px', background:'#252536', marginBottom:'52px'}}/>
+
+      <div style={{display:'grid', gridTemplateColumns:'repeat(2,1fr)', gap:'14px', marginBottom:'16px'}}>
+        {groups.map(g => (
+          <div key={g.label}
+               style={{background:'#171723', border:'1px solid #252536', borderRadius:'12px', padding:'20px 22px', transition:'border-color 0.2s'}}
+               onMouseEnter={e => e.currentTarget.style.borderColor='rgba(129,140,248,0.4)'}
+               onMouseLeave={e => e.currentTarget.style.borderColor='#252536'}>
+            <div className="flex items-center gap-2 mb-3" style={{fontSize:'0.68rem', fontWeight:700, color:'#818cf8', letterSpacing:'0.1em', textTransform:'uppercase'}}>
+              <g.icon size={12}/> {g.label}
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {g.skills.map(s => (
+                <span key={s} className="text-sm transition-all duration-200 cursor-default"
+                      style={{fontSize:'0.79rem', background:'#0d0d14', border:'1px solid #252536', color:'#8892a4', padding:'4px 12px', borderRadius:'6px'}}
+                      onMouseEnter={e => { e.target.style.borderColor='rgba(129,140,248,0.4)'; e.target.style.color='#e2e8f0'; }}
+                      onMouseLeave={e => { e.target.style.borderColor='#252536'; e.target.style.color='#8892a4'; }}>
+                  {s}
+                </span>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div style={{background:'rgba(129,140,248,0.08)', border:'1px solid rgba(129,140,248,0.2)', borderRadius:'10px', padding:'14px 20px', fontSize:'0.84rem', color:'#8892a4'}}>
+        <strong style={{color:'#818cf8'}}>Currently sharpening:</strong>&nbsp; SQL (DataLemur daily problems) · Tableau · Excel (XLOOKUP, pivot tables)
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RESUME TAB
+═══════════════════════════════════════════════════════════ */
+function ResumeTab() {
+  const sec = (title) => (
+    <div style={{fontSize:'0.67rem', fontWeight:800, letterSpacing:'0.14em', textTransform:'uppercase', color:'#818cf8', borderBottom:'1px solid #252536', paddingBottom:'6px', marginBottom:'14px'}}>
+      {title}
+    </div>
+  );
+  const itemHead = (title, meta, sub, subMeta) => (
+    <>
+      <div className="flex justify-between items-baseline gap-2">
+        <div style={{fontSize:'0.88rem', fontWeight:700}}>{title}</div>
+        <div style={{fontSize:'0.74rem', color:'#8892a4', whiteSpace:'nowrap', flexShrink:0}}>{meta}</div>
+      </div>
+      {sub && (
+        <div className="flex justify-between items-baseline gap-2">
+          <div style={{fontSize:'0.81rem', color:'#818cf8', fontStyle:'italic'}}>{sub}</div>
+          {subMeta && <div style={{fontSize:'0.74rem', color:'#8892a4', whiteSpace:'nowrap', flexShrink:0}}>{subMeta}</div>}
+        </div>
+      )}
+    </>
+  );
+  const bullets = (items) => (
+    <ul style={{listStyle:'none', marginTop:'5px'}}>
+      {items.map((b,i) => (
+        <li key={i} style={{fontSize:'0.81rem', color:'#8892a4', lineHeight:1.65, paddingLeft:'14px', position:'relative', marginBottom:'3px'}}>
+          <span style={{position:'absolute',left:0,color:'#818cf8'}}>•</span>
+          <span dangerouslySetInnerHTML={{__html:b}}/>
+        </li>
+      ))}
+    </ul>
+  );
+
+  return (
+    <div className="tab-enter px-6 mx-auto" style={{maxWidth:'1000px', paddingTop:'90px', paddingBottom:'90px'}}>
+      <div className="flex justify-between items-end flex-wrap gap-4 mb-10">
+        <div>
+          <div style={{fontSize:'0.7rem', fontWeight:700, letterSpacing:'0.13em', textTransform:'uppercase', color:'#818cf8', marginBottom:'6px'}}>Resume</div>
+          <h2 style={{fontSize:'clamp(1.5rem,3vw,2rem)', fontWeight:800, letterSpacing:'-0.025em'}}>Full résumé</h2>
+        </div>
+        <a href="Yra_Climaco_ResumeV4.pdf" download
+           className="flex items-center gap-2 font-semibold"
+           style={{background:'#818cf8', color:'#fff', padding:'10px 22px', borderRadius:'8px', fontSize:'0.88rem', textDecoration:'none', transition:'all 0.2s'}}
+           onMouseEnter={e => { e.currentTarget.style.filter='brightness(1.1)'; e.currentTarget.style.transform='translateY(-2px)'; }}
+           onMouseLeave={e => { e.currentTarget.style.filter=''; e.currentTarget.style.transform=''; }}>
+          <Icons.Download size={14}/> Download PDF
+        </a>
+      </div>
+      <div style={{width:'100%', height:'1px', background:'#252536', marginBottom:'40px'}}/>
+
+      <div style={{background:'#171723', border:'1px solid #252536', borderRadius:'16px', padding:'40px 44px', maxWidth:'820px', margin:'0 auto'}}>
+        {/* Header */}
+        <div style={{textAlign:'center', marginBottom:'28px', paddingBottom:'22px', borderBottom:'1px solid #252536'}}>
+          <div style={{fontSize:'1.8rem', fontWeight:800, letterSpacing:'-0.03em', marginBottom:'10px'}}>Yra Climaco</div>
+          <div className="flex justify-center flex-wrap gap-x-4 gap-y-1" style={{fontSize:'0.78rem', color:'#8892a4'}}>
+            <span>661-207-1800</span>
+            <a href="mailto:climacoyra@gmail.com" style={{color:'#8892a4', textDecoration:'none'}}
+               onMouseEnter={e => e.target.style.color='#818cf8'} onMouseLeave={e => e.target.style.color='#8892a4'}>climacoyra@gmail.com</a>
+            <a href="https://www.linkedin.com/in/yra-climaco/" target="_blank" rel="noopener" style={{color:'#8892a4', textDecoration:'none'}}
+               onMouseEnter={e => e.target.style.color='#818cf8'} onMouseLeave={e => e.target.style.color='#8892a4'}>linkedin.com/in/yra-climaco</a>
+            <a href="https://github.com/yraclimaco" target="_blank" rel="noopener" style={{color:'#8892a4', textDecoration:'none'}}
+               onMouseEnter={e => e.target.style.color='#818cf8'} onMouseLeave={e => e.target.style.color='#8892a4'}>github.com/yraclimaco</a>
+          </div>
+        </div>
+
+        {/* Education */}
+        <div style={{marginBottom:'26px'}}>
+          {sec('Education')}
+          <div style={{marginBottom:'14px'}}>
+            {itemHead('University of California, San Diego', 'San Diego, CA', 'Bachelor of Science in Data Science, Minor in Business Analytics', 'Sept. 2024 – June 2028')}
+            {bullets([
+              '<strong style="color:#e2e8f0;font-weight:600">GPA:</strong> 3.8 / 4.0 &nbsp;|&nbsp; <strong style="color:#e2e8f0;font-weight:600">Activities:</strong> Data Science Student Society (DS3)',
+              '<strong style="color:#e2e8f0;font-weight:600">Relevant Coursework:</strong> Practice of Data Science · Data Science with AI · Applied Statistical Data Analysis and Inference · Statistical Methods · Theoretical Foundations of Data Science · Programming for Data Science · Applied Market Research · Linear Algebra · Data Structures &amp; Algorithms',
+            ])}
+          </div>
+        </div>
+
+        {/* Experience */}
+        <div style={{marginBottom:'26px'}}>
+          {sec('Experience')}
+          <div style={{marginBottom:'14px'}}>
+            {itemHead('Data Science Intern', 'San Diego, CA', 'Center for Community Energy (CCE)', 'Feb. 2026 – June 2026')}
+            {bullets([
+              'Developed a solar outreach database for the "Move Now" renewable energy initiative targeting San Diego County businesses and nonprofits.',
+              'Built a PostgreSQL ETL pipeline to ingest, clean, and merge San Diego commercial property and tax records; engineered a unified outreach table using CTEs, JOINs, CASE WHEN logic, and UNION ALL.',
+              'Surfaced tax-exempt organizations absent from business tax data via LEFT JOIN logic, expanding the outreach target pool beyond standard filters.',
+            ])}
+          </div>
+          <div style={{marginBottom:'14px'}}>
+            {itemHead('LA County Pool Lifeguard & Swim Instructor', 'Santa Clarita, CA', 'Castaic Aquatic Center', 'Feb. 2023 – Present')}
+            {bullets([
+              'Instructed swim lessons to children and adults, breaking down complex technique into clear, progressive steps for non-technical audiences.',
+              'Coordinate with a team of guards to maintain 100% coverage of high-traffic zones, resulting in zero safety incidents.',
+            ])}
+          </div>
+        </div>
+
+        {/* Projects */}
+        <div style={{marginBottom:'26px'}}>
+          {sec('Projects')}
+          {[
+            {
+              title: 'SurfCast SD — Surf Forecast & ML Rating Predictor',
+              stack: 'Python · Scikit-learn · GCP', date: 'May – June 2026',
+              links: [{ label:'Live Site', href:'#' }],
+              bullets: [
+                'Provisioned GCS storage buckets for model artifacts and forecast outputs; configured automated hourly Cloud Run pipeline writing live predictions to GCS for dashboard consumption.',
+                'Built a live surf forecasting system predicting 7-tier quality ratings for three San Diego breaks trained on 303,000+ hourly ocean observations across three years.',
+                'Trained and tuned five classifiers with RandomizedSearchCV; selected balanced Random Forest on macro F1 (0.541) over raw accuracy to handle 47% class imbalance, the only model producing meaningful predictions across all 7 tiers.',
+                'Conducted time series EDA confirming SD daily wind cycle (5 mph morning vs 10.8 mph midday) as a key predictive signal.',
+              ],
+            },
+            {
+              title: 'Snowball Effect Analysis in Professional LoL',
+              stack: 'Python · Pandas · Scikit-learn · Plotly', date: 'Mar. 2026',
+              links: [{ label:'Live Site', href:'https://yraclimaco.github.io/lol-snowball-analysis' }],
+              bullets: [
+                'Analyzed 9,236 professional matches; permutation test confirmed early gold advantages predict outcomes (p &lt; 0.001).',
+                'Built Random Forest classifier on 15-minute game state achieving 73.6% test accuracy, outperforming a 50% baseline by 24%.',
+                'Deployed full data science lifecycle as interactive GitHub Pages report including EDA, missingness analysis, hypothesis testing, and fairness analysis.',
+              ],
+            },
+            {
+              title: 'TubeScope — Viral Trend Predictor',
+              stack: 'Python · Pandas · Scikit-learn · Plotly', date: 'Oct. – Dec. 2025',
+              bullets: [
+                'Selected for competitive DS3 project team (top 16%); awarded 3rd place out of 10 teams at Showcase.',
+                'Identified 83% viral trend drop-off via Kaplan-Meier Survival Analysis; built Random Forest classifier achieving 68% Recall and 3× Precision lift.',
+                'Built automated Python pipeline ingesting YouTube Data API, powering live dashboard analytics with engineered metadata features.',
+              ],
+            },
+          ].map(p => (
+            <div key={p.title} style={{marginBottom:'14px'}}>
+              <div className="flex justify-between items-baseline gap-2">
+                <div style={{fontSize:'0.88rem', fontWeight:700}}>
+                  {p.title}
+                  {p.links && p.links.map(l => (
+                    <a key={l.label} href={l.href} target="_blank" rel="noopener"
+                       style={{fontWeight:500, fontSize:'0.76rem', color:'#818cf8', marginLeft:'8px', textDecoration:'none'}}
+                       onMouseEnter={e => e.target.style.textDecoration='underline'}
+                       onMouseLeave={e => e.target.style.textDecoration='none'}>
+                      {l.label} ↗
+                    </a>
+                  ))}
+                  &nbsp;<span style={{fontWeight:500, fontSize:'0.76rem', color:'#8892a4'}}>{p.stack}</span>
+                </div>
+                <div style={{fontSize:'0.74rem', color:'#8892a4', whiteSpace:'nowrap', flexShrink:0}}>{p.date}</div>
+              </div>
+              {bullets(p.bullets)}
+            </div>
+          ))}
+        </div>
+
+        {/* Skills */}
+        <div>
+          {sec('Technical Skills')}
+          {[
+            { label: 'Languages',            val: 'Python, SQL (PostgreSQL)' },
+            { label: 'Data Analysis',        val: 'Pandas, NumPy, ETL Pipelines, A/B Testing, Hypothesis Testing, Time-Series Analysis' },
+            { label: 'Machine Learning',     val: 'Scikit-learn, Random Forests, Classification, Regression, Feature Engineering' },
+            { label: 'Cloud & Deployment',   val: 'Google Cloud Platform (Cloud Run, GCS)' },
+            { label: 'Visualization',        val: 'Tableau, Matplotlib, Seaborn, Plotly' },
+            { label: 'AI Tools',             val: 'Claude Code, ChatGPT, Gemini' },
+            { label: 'Tools',                val: 'Git, Jupyter Notebooks, VS Code, Excel' },
+          ].map(r => (
+            <div key={r.label} className="flex gap-2 flex-wrap mb-1.5" style={{fontSize:'0.81rem'}}>
+              <strong style={{color:'#e2e8f0', fontWeight:600, flexShrink:0}}>{r.label}:</strong>
+              <span style={{color:'#8892a4'}}>{r.val}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="flex justify-center mt-7">
+        <a href="Yra_Climaco_ResumeV4.pdf" download
+           className="flex items-center gap-2 font-semibold"
+           style={{background:'#818cf8', color:'#fff', padding:'10px 22px', borderRadius:'8px', fontSize:'0.88rem', textDecoration:'none', transition:'all 0.2s'}}
+           onMouseEnter={e => { e.currentTarget.style.filter='brightness(1.1)'; e.currentTarget.style.transform='translateY(-2px)'; }}
+           onMouseLeave={e => { e.currentTarget.style.filter=''; e.currentTarget.style.transform=''; }}>
+          <Icons.Download size={14}/> Download PDF
+        </a>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════
+   APP ROOT
+═══════════════════════════════════════════════════════════ */
+function App() {
+  const [activeTab, setActiveTab] = useState('Home');
+  const [tabKey, setTabKey]       = useState(0);
+
+  const { canvasRef, heroRef, coords } = useStarfield(activeTab === 'Home');
+  const { lines: termLines, termRef }  = useTerminal();
+
+  function setTab(tab) {
+    setActiveTab(tab);
+    setTabKey(k => k + 1);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  return (
+    <div style={{minHeight:'100vh', background:'#0d0d14'}}>
+      <Nav activeTab={activeTab} setTab={setTab}/>
+
+      <main style={{paddingTop: activeTab === 'Home' ? '0' : '0'}}>
+        {activeTab === 'Home' && (
+          <HomeTab key={tabKey} canvasRef={canvasRef} heroRef={heroRef} coords={coords} termLines={termLines} termRef={termRef} setTab={setTab}/>
+        )}
+        {activeTab === 'Experience' && <ExperienceTab key={tabKey}/>}
+        {activeTab === 'Projects'   && <ProjectsTab key={tabKey}/>}
+        {activeTab === 'Skills'     && <SkillsTab key={tabKey}/>}
+        {activeTab === 'Resume'     && <ResumeTab key={tabKey}/>}
+      </main>
+
+      {/* Contact footer — always visible */}
+      <footer style={{background:'#111119', borderTop:'1px solid #252536', padding:'52px 24px 28px'}}>
+        <div className="mx-auto" style={{maxWidth:'1000px'}}>
+          <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:'52px', alignItems:'center', marginBottom:'40px'}}>
+            <div>
+              <div style={{fontSize:'0.7rem', fontWeight:700, letterSpacing:'0.13em', textTransform:'uppercase', color:'#818cf8', marginBottom:'8px'}}>Contact</div>
+              <h2 style={{fontSize:'1.7rem', fontWeight:800, letterSpacing:'-0.025em', marginBottom:'10px'}}>Let's connect</h2>
+              <p style={{color:'#8892a4', fontSize:'0.9rem', lineHeight:1.75}}>
+                Open to data science internships, product analytics roles, and project collaborations.
+                Especially interested in gaming, streaming, and consumer tech.
+              </p>
+            </div>
+            <div style={{display:'flex', flexDirection:'column', gap:'10px'}}>
+              {[
+                { href:'mailto:climacoyra@gmail.com', Icon: Icons.Mail, label:'Email', val:'climacoyra@gmail.com' },
+                { href:'https://www.linkedin.com/in/yra-climaco/', Icon: Icons.Linkedin, label:'LinkedIn', val:'linkedin.com/in/yra-climaco', external:true },
+                { href:'https://github.com/yraclimaco', Icon: Icons.Github, label:'GitHub', val:'github.com/yraclimaco', external:true },
+              ].map(c => (
+                <a key={c.label} href={c.href} target={c.external?'_blank':undefined} rel={c.external?'noopener':undefined}
+                   className="flex items-center gap-4 transition-all duration-200"
+                   style={{padding:'14px 18px', background:'#171723', border:'1px solid #252536', borderRadius:'10px', textDecoration:'none', color:'inherit'}}
+                   onMouseEnter={e => { e.currentTarget.style.borderColor='#818cf8'; e.currentTarget.style.transform='translateX(4px)'; e.currentTarget.querySelector('.cv').style.color='#818cf8'; }}
+                   onMouseLeave={e => { e.currentTarget.style.borderColor='#252536'; e.currentTarget.style.transform=''; e.currentTarget.querySelector('.cv').style.color='#e2e8f0'; }}>
+                  <c.Icon size={18}/>
+                  <div>
+                    <div style={{fontSize:'0.7rem', color:'#8892a4'}}>{c.label}</div>
+                    <div className="cv font-semibold transition-colors duration-200" style={{fontSize:'0.84rem', color:'#e2e8f0'}}>{c.val}</div>
+                  </div>
+                </a>
+              ))}
+            </div>
+          </div>
+          <div style={{borderTop:'1px solid #252536', paddingTop:'22px', textAlign:'center', fontSize:'0.78rem', color:'#8892a4'}}>
+            Designed and built by Yra Climaco · 2026
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
 </script>
 </body>
 </html>
