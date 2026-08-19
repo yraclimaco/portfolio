@@ -62,44 +62,16 @@
     @keyframes hud-fadein { from { opacity:0; } to { opacity:1; } }
     .hud-appear { animation: hud-fadein 1s ease forwards; }
 
-    @keyframes hud-scan {
-      0%   { top: 58px; opacity: 0; }
-      3%   { opacity: 0.35; }
-      97%  { opacity: 0.08; }
-      100% { top: calc(100% - 110px); opacity: 0; }
-    }
-    .hud-scan { animation: hud-scan 6s ease-in-out 1.5s infinite; }
-
-    @keyframes status-pulse {
-      0%,100% { opacity:1; box-shadow: 0 0 5px #22c55e; }
-      50%      { opacity:0.4; box-shadow: none; }
-    }
-    .status-dot { animation: status-pulse 2s ease-in-out infinite; }
-
-    @keyframes chip-appear { from { opacity:0; transform:translateY(6px); } to { opacity:0.8; transform:translateY(0); } }
-    @keyframes chip-bob    { 0%,100% { transform:translateY(0); opacity:0.8; } 50% { transform:translateY(-8px); opacity:1; } }
-    .hud-chip { animation: chip-appear 0.6s ease forwards, chip-bob 5s ease-in-out infinite; }
-
     /* ── Ocean waves ──────────────────────────────────────── */
     @keyframes wave-drift { from { transform:translateX(0); } to { transform:translateX(-50%); } }
     .wave-1 { animation: wave-drift  9s linear infinite; }
     .wave-2 { animation: wave-drift 14s linear infinite reverse; }
     .wave-3 { animation: wave-drift  6s linear infinite; }
 
-    /* ── Pinned gradient border ───────────────────────────── */
-    @keyframes border-flow {
-      0%   { background-position: 0% 0%; }
-      100% { background-position: 0% 300%; }
-    }
-    @keyframes pin-glow {
-      0%,100% { box-shadow: 0 0 22px rgba(129,140,248,0.35), 0 0 44px rgba(129,140,248,0.12); }
-      50%     { box-shadow: 0 0 36px rgba(129,140,248,0.6),  0 0 72px rgba(251,191,36,0.2); }
-    }
+    /* ── Pinned accent border ─────────────────────────────── */
     .pin-wrap {
-      border-radius: 16px; padding: 2px;
-      background: linear-gradient(180deg, #818cf8 0%, #a78bfa 25%, #fbbf24 50%, #f9a8d4 75%, #818cf8 100%);
-      background-size: 100% 300%;
-      animation: border-flow 3s linear infinite, pin-glow 2.5s ease-in-out infinite;
+      border-radius: 16px; padding: 1px;
+      background: rgba(129,140,248,0.45);
     }
 
     /* ── Card flip ────────────────────────────────────────── */
@@ -116,15 +88,6 @@
     .skate-em { display:inline-block; animation: roll 2s ease-in-out infinite; }
     .op-em    { display:inline-block; animation: bounce-op 1.8s ease-in-out infinite; }
     .game-em  { display:inline-block; animation: pulse-g 2.5s ease-in-out infinite; }
-
-    /* ── Terminal ─────────────────────────────────────────── */
-    .terminal-body { scrollbar-width: thin; scrollbar-color: #252536 #111119; }
-    .terminal-body::-webkit-scrollbar { width: 4px; }
-    .terminal-body::-webkit-scrollbar-thumb { background: #252536; border-radius: 2px; }
-
-    /* ── Mini chart hover ─────────────────────────────────── */
-    .project-chart { opacity:0; transform:translateY(8px); transition: opacity 0.3s, transform 0.3s; pointer-events:none; }
-    .pcard-wrap:hover .project-chart { opacity:1; transform:translateY(0); }
 
     /* ── BJJ belt ─────────────────────────────────────────── */
     .belt-stripe { width:8px; height:4px; border-radius:2px; background:#818cf8; opacity:0.45; transition:opacity 0.3s; }
@@ -335,77 +298,6 @@ function useStarfield(enabled) {
 }
 
 /* ═══════════════════════════════════════════════════════════
-   TERMINAL HOOK
-═══════════════════════════════════════════════════════════ */
-const TERM_POOL = [
-  { t: 'info',    m: 'Initializing SurfCast SD hourly forecast pipeline...' },
-  { t: 'info',    m: 'Fetching ocean observations → 303,000+ hourly records loaded' },
-  { t: 'ok',      m: 'Cloud Run job complete → predictions written to GCS' },
-  { t: 'info',    m: 'Initializing LoL 2025 Match Data Pipeline...' },
-  { t: 'info',    m: 'Ingesting 9,236 professional match records from Riot API...' },
-  { t: 'ok',      m: 'ETL complete → master_matches loaded (9,236 rows)' },
-  { t: 'info',    m: 'Encoding features: gold_diff_15, dragon_soul, baron_buff...' },
-  { t: 'info',    m: 'Running permutation test (n_permutations=10,000)...' },
-  { t: 'ok',      m: 'H₀ rejected — gold advantage at 15min: p < 0.001' },
-  { t: 'info',    m: 'Training Random Forest classifier (n_estimators=200, max_depth=8)...' },
-  { t: 'ok',      m: 'Random Forest test accuracy: 73.6% (+23.6pp vs baseline)' },
-  { t: 'info',    m: 'Launching TubeScope YouTube Data API ingestion batch...' },
-  { t: 'warn',    m: 'API quota at 84% — rotating to secondary key...' },
-  { t: 'ok',      m: 'Channel Authority scores computed for 12,441 videos' },
-  { t: 'info',    m: 'Fitting Kaplan-Meier survival model on engagement curves...' },
-  { t: 'ok',      m: 'Viral trend drop-off identified: 83% decay at t=72h' },
-  { t: 'ok',      m: 'Random Forest Recall: 68% | Precision lift: 3× baseline' },
-  { t: 'info',    m: 'Loading Uber & Lyft rideshare dataset (600k+ rows)...' },
-  { t: 'ok',      m: 'Linear Regression R² = 0.93 on holdout split' },
-  { t: 'info',    m: 'Detecting Luxury tier residual degradation...' },
-  { t: 'warn',    m: 'Class imbalance detected in Luxury tier — flagging for SMOTE...' },
-  { t: 'info',    m: 'PostgreSQL ETL: merging 3 San Diego County public datasets...' },
-  { t: 'info',    m: 'Applying LEFT JOIN to surface tax-exempt orgs...' },
-  { t: 'ok',      m: 'master_prospects table → 133,421 rows after UNION ALL' },
-  { t: 'info',    m: 'Computing ADCC submission frequency 1998–2022...' },
-  { t: 'ok',      m: 'Rear Naked Choke dominates: 31.2% of all finishes' },
-  { t: 'info',    m: 'Analyzing championship round submission vs points trends...' },
-  { t: 'ok',      m: 'Finals skew toward points-based strategy (62% decision rate)' },
-  { t: 'ok',      m: 'DS3 Showcase pipeline complete — 3rd of 10 teams' },
-  { t: 'info',    m: 'Sharpening: DataLemur SQL #47 — window functions...' },
-  { t: 'ok',      m: 'Query optimized — execution time: 12ms vs 340ms naive' },
-  { t: 'info',    m: 'System idle — awaiting next data pipeline trigger...' },
-];
-
-function useTerminal() {
-  const [lines, setLines] = useState([]);
-  const termRef = useRef(null);
-  const idxRef  = useRef(0);
-
-  useEffect(() => {
-    const initial = TERM_POOL.slice(0, 4).map((l, i) => ({ ...l, id: i, ts: timestamp() }));
-    setLines(initial);
-    idxRef.current = 4;
-
-    const iv = setInterval(() => {
-      const idx = idxRef.current % TERM_POOL.length;
-      idxRef.current++;
-      setLines(prev => {
-        const next = [...prev, { ...TERM_POOL[idx], id: Date.now(), ts: timestamp() }];
-        return next.length > 30 ? next.slice(-30) : next;
-      });
-    }, 1800);
-    return () => clearInterval(iv);
-  }, []);
-
-  useEffect(() => {
-    if (termRef.current) termRef.current.scrollTop = termRef.current.scrollHeight;
-  }, [lines]);
-
-  return { lines, termRef };
-}
-
-function timestamp() {
-  const now = new Date();
-  return `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
-}
-
-/* ═══════════════════════════════════════════════════════════
    COUNT-UP HOOK
 ═══════════════════════════════════════════════════════════ */
 function CountUp({ target, decimals=0, suffix='' }) {
@@ -432,32 +324,6 @@ function CountUp({ target, decimals=0, suffix='' }) {
   }, [target, decimals, suffix]);
 
   return <span ref={elRef}>{val}</span>;
-}
-
-/* ═══════════════════════════════════════════════════════════
-   MINI CHART — SVG bar chart for project cards
-═══════════════════════════════════════════════════════════ */
-function MiniChart({ title, bars, color='#818cf8' }) {
-  const max = Math.max(...bars.map(b => b.v));
-  return (
-    <div className="project-chart absolute inset-0 rounded-xl flex flex-col justify-end"
-         style={{background:'rgba(13,13,20,0.92)', backdropFilter:'blur(12px)', padding:'16px', border:'1px solid rgba(129,140,248,0.25)', zIndex:10}}>
-      <div className="font-mono text-xs mb-3" style={{color:'#818cf8', letterSpacing:'0.08em'}}>{title}</div>
-      <div className="flex items-end gap-2 h-16">
-        {bars.map((b, i) => (
-          <div key={i} className="flex flex-col items-center gap-1 flex-1">
-            <div className="text-xs font-mono" style={{color:'#e2e8f0', fontSize:'0.6rem'}}>{b.v}%</div>
-            <div className="w-full rounded-sm" style={{
-              height: `${(b.v / max) * 52}px`,
-              background: i === bars.findIndex(x => x.v === max) ? '#818cf8' : `${color}55`,
-              transition: 'height 0.3s ease',
-            }}/>
-            <div className="text-center font-mono" style={{color:'#8892a4', fontSize:'0.55rem', lineHeight:'1.2'}}>{b.l}</div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -497,7 +363,7 @@ function Nav({ activeTab, setTab }) {
 /* ═══════════════════════════════════════════════════════════
    HUD OVERLAY
 ═══════════════════════════════════════════════════════════ */
-function HudOverlay({ coords }) {
+function HudOverlay() {
   return (
     <div style={{position:'absolute',inset:0,zIndex:1,pointerEvents:'none',overflow:'hidden'}}>
       {/* Corner brackets */}
@@ -514,52 +380,10 @@ function HudOverlay({ coords }) {
         </div>
       ))}
 
-      {/* HUD text lines */}
+      {/* HUD label — the one signature flourish */}
       <div className="hud-appear absolute font-mono text-xs tracking-widest"
            style={{color:'#818cf8', top:'70px', left:'48px', fontSize:'0.6rem', opacity:0, animationDelay:'0.5s'}}>
         [ GRAND LINE · UCSD DS · 2026 ]
-      </div>
-      <div className="hud-appear absolute font-mono text-xs tracking-widest"
-           style={{color:'#818cf8', top:'70px', right:'48px', fontSize:'0.6rem', opacity:0, animationDelay:'0.7s'}}>
-        X: {coords.x} / Y: {coords.y}
-      </div>
-      <div className="hud-appear absolute font-mono text-xs tracking-widest"
-           style={{color:'#818cf8', bottom:'118px', left:'48px', fontSize:'0.6rem', opacity:0, animationDelay:'0.9s', whiteSpace:'nowrap'}}>
-        SECTOR_04 · NEW WORLD
-      </div>
-
-      {/* Scan line */}
-      <div className="hud-scan absolute left-4 right-4" style={{
-        height:'1px', opacity:0, top:'58px',
-        background:'linear-gradient(90deg, transparent 0%, #818cf8 40%, #818cf8 60%, transparent 100%)',
-      }}/>
-
-      {/* Floating stat chips */}
-      {[
-        {label:'ACC 73.6%',  style:{top:'22%',right:'3%',  animationDelay:'1.2s, 1.8s'}},
-        {label:'R² = 0.93',  style:{top:'68%',left:'2%',   animationDelay:'1.8s, 2.4s'}},
-        {label:'133K ROWS',  style:{top:'48%',right:'2%',  animationDelay:'2.4s, 3.0s'}},
-        {label:'p < 0.001',  style:{top:'38%',left:'2%',   animationDelay:'2.0s, 2.6s'}},
-        {label:'TOP 16%',    style:{top:'80%',right:'3%',  animationDelay:'2.8s, 3.4s'}},
-      ].map((c,i) => (
-        <span key={i} className="hud-chip absolute font-mono font-bold"
-              style={{
-                fontSize:'0.62rem', color:'#818cf8',
-                background:'rgba(13,13,20,0.8)',
-                border:'1px solid rgba(129,140,248,0.3)',
-                borderRadius:'4px', padding:'4px 9px',
-                letterSpacing:'0.06em', opacity:0,
-                ...c.style,
-              }}>
-          {c.label}
-        </span>
-      ))}
-
-      {/* Status bar */}
-      <div className="hud-appear absolute font-mono tracking-widest"
-           style={{bottom:'118px',left:'50%',transform:'translateX(-50%)',fontSize:'0.58rem',color:'#818cf8',opacity:0,animationDelay:'1.4s',whiteSpace:'nowrap'}}>
-        <span className="status-dot inline-block w-1.5 h-1.5 rounded-full mr-1.5 align-middle" style={{background:'#22c55e'}}/>
-        ONLINE · CHARTING THE COURSE
       </div>
     </div>
   );
@@ -598,54 +422,6 @@ function OceanWaves() {
           <path d={w.d} fill={w.color}/>
         </svg>
       ))}
-    </div>
-  );
-}
-
-/* ═══════════════════════════════════════════════════════════
-   TERMINAL WIDGET
-═══════════════════════════════════════════════════════════ */
-function TerminalWidget({ lines, termRef }) {
-  const colors = { info: '#818cf8', ok: '#22c55e', warn: '#fbbf24', error: '#f87171' };
-  const badges = { info: 'INFO', ok: 'OK', warn: 'WARN', error: 'ERR' };
-
-  return (
-    <div style={{background:'#0a0a10', border:'1px solid #252536', borderRadius:'12px', overflow:'hidden'}}>
-      {/* Title bar */}
-      <div className="flex items-center gap-2 px-4 py-3" style={{background:'#111119', borderBottom:'1px solid #252536'}}>
-        <div className="flex gap-1.5">
-          <div className="w-2.5 h-2.5 rounded-full" style={{background:'#ff5f56'}}/>
-          <div className="w-2.5 h-2.5 rounded-full" style={{background:'#ffbd2e'}}/>
-          <div className="w-2.5 h-2.5 rounded-full" style={{background:'#27c93f'}}/>
-        </div>
-        <div className="flex items-center gap-2 ml-2">
-          <Icons.Terminal size={12} style={{color:'#818cf8'}}/>
-          <span className="font-mono text-xs" style={{color:'#818cf8', letterSpacing:'0.08em'}}>analytics.pipeline — zsh</span>
-        </div>
-        <div className="ml-auto flex items-center gap-1.5">
-          <span className="status-dot inline-block w-1.5 h-1.5 rounded-full" style={{background:'#22c55e'}}/>
-          <span className="font-mono text-xs" style={{color:'#8892a4', fontSize:'0.6rem'}}>LIVE</span>
-        </div>
-      </div>
-      {/* Log body */}
-      <div ref={termRef} className="terminal-body overflow-y-auto py-3 px-4 space-y-1.5" style={{height:'220px'}}>
-        {lines.map(l => (
-          <div key={l.id} className="flex gap-3 items-start font-mono" style={{fontSize:'0.72rem', lineHeight:'1.5'}}>
-            <span style={{color:'#8892a4', flexShrink:0}}>{l.ts}</span>
-            <span className="font-bold px-1.5 rounded" style={{
-              color: colors[l.t], background: colors[l.t] + '18',
-              flexShrink:0, fontSize:'0.65rem', letterSpacing:'0.04em',
-            }}>{badges[l.t]}</span>
-            <span style={{color: l.t==='ok' ? '#c8f5d4' : l.t==='warn' ? '#fef3c7' : '#c4cad4'}}>{l.m}</span>
-          </div>
-        ))}
-        <div className="flex gap-3 items-center font-mono" style={{fontSize:'0.72rem'}}>
-          <span style={{color:'#8892a4'}}>{timestamp()}</span>
-          <span style={{color:'#818cf8'}}>›</span>
-          <span style={{color:'#8892a4'}}>_</span>
-          <span className="inline-block w-1.5 h-3.5 ml-0.5" style={{background:'#818cf8', animation:'status-pulse 1s ease-in-out infinite'}}/>
-        </div>
-      </div>
     </div>
   );
 }
@@ -725,13 +501,13 @@ function Tag({ label }) {
 /* ═══════════════════════════════════════════════════════════
    HOME TAB
 ═══════════════════════════════════════════════════════════ */
-function HomeTab({ canvasRef, heroRef, coords, termLines, termRef, setTab }) {
+function HomeTab({ canvasRef, heroRef, setTab }) {
   return (
     <div className="tab-enter">
       {/* ── Hero ── */}
       <section ref={heroRef} style={{minHeight:'100vh', display:'flex', alignItems:'center', paddingTop:'56px', position:'relative', overflow:'hidden', background:'#0d0d14'}}>
         <canvas ref={canvasRef} style={{position:'absolute',inset:0,zIndex:0,pointerEvents:'none',display:'block'}}/>
-        <HudOverlay coords={coords}/>
+        <HudOverlay/>
 
         {/* Cursor glow */}
         <div style={{position:'absolute',zIndex:1,pointerEvents:'none',width:'380px',height:'380px',borderRadius:'50%',
@@ -828,8 +604,9 @@ function HomeTab({ canvasRef, heroRef, coords, termLines, termRef, setTab }) {
                 I enjoy the full stack: PostgreSQL ETL pipelines, ML classifiers, and presenting findings to non-technical stakeholders.
               </div>
               <div style={{color:'#8892a4', lineHeight:1.85, marginBottom:'28px', fontSize:'0.91rem'}}>
-                Active member of the <strong style={{color:'#e2e8f0'}}>Data Science Student Society (DS3)</strong>.
-                Completed one showcase cycle (3rd of 10 teams) and working through my second. Sharpening SQL skills daily.
+                Currently a <strong style={{color:'#e2e8f0'}}>National Security Intern</strong> with i4NS at the U.S. Department of War,
+                applying data science methods to real-world national security challenges. Also selected as a <strong style={{color:'#e2e8f0'}}>DS3 Projects Mentor</strong> for
+                the 2026–27 cycle, leading a student project team starting this September.
               </div>
 
               {/* Stats */}
@@ -847,12 +624,6 @@ function HomeTab({ canvasRef, heroRef, coords, termLines, termRef, setTab }) {
                   </div>
                 ))}
               </div>
-
-              {/* Terminal widget */}
-              <div style={{marginBottom:'8px', fontSize:'0.68rem', fontWeight:700, letterSpacing:'0.1em', textTransform:'uppercase', color:'#818cf8', display:'flex', alignItems:'center', gap:'6px'}}>
-                <Icons.Terminal size={12}/> Live Analytics Terminal
-              </div>
-              <TerminalWidget lines={termLines} termRef={termRef}/>
             </div>
 
             {/* Right col */}
@@ -886,6 +657,28 @@ function HomeTab({ canvasRef, heroRef, coords, termLines, termRef, setTab }) {
 ═══════════════════════════════════════════════════════════ */
 function ExperienceTab() {
   const items = [
+    {
+      date: 'Aug. 2026\n– Dec. 2026',
+      role: 'National Security Intern',
+      company: 'i4NS (Innovating for National Security) · U.S. Dept. of War',
+      badge: 'Current',
+      bullets: [
+        'Selected through a competitive, group-interview process for i4NS (Innovating for National Security), a cohort-based internship program with the U.S. Department of War.',
+        'Applying data science and analytical problem-solving methods to real-world national security challenges alongside a cohort of selected students.',
+      ],
+      tags: [],
+    },
+    {
+      date: 'Selected Aug. 2026\nStarts Sept. 2026',
+      role: 'Projects Mentor',
+      company: 'Data Science Student Society (DS3) · UC San Diego',
+      badge: 'Upcoming',
+      bullets: [
+        'Selected as a Projects Mentor for DS3, leading a student project team building end-to-end data products with cloud deployment on GCP and AWS.',
+        'Role begins late September 2026 with the start of the academic year; contributing to standardizing project quality and procedures across DS3.',
+      ],
+      tags: ['GCP','AWS','Mentorship'],
+    },
     {
       date: 'Feb. 2026\n– Jun. 2026',
       role: 'Data Science Intern',
@@ -961,7 +754,7 @@ const PROJECTS = [
     id: 1,
     category: 'Machine Learning',
     pinned: true,
-    badge: '🏆 DS3 Cycle 1 · 3rd Place Showcase',
+    badge: 'DS3 Cycle 1 · 3rd Place Showcase',
     title: 'TubeScope — Viral Trend Predictor',
     links: [{ label:'GitHub ↗', href:'https://github.com/yraclimaco' }],
     bullets: [
@@ -969,34 +762,26 @@ const PROJECTS = [
       { b:'Used Kaplan-Meier Survival Analysis to identify 83% viral trend drop-off; built Random Forest classifier achieving 68% Recall and 3× Precision lift.' },
       { b:'Built automated Python pipeline to ingest data from YouTube Data API, powering live dashboard analytics with engineered metadata features.' },
     ],
-    tags: ['Python','Pandas','Scikit-learn','Kaplan-Meier','YouTube API','Random Forest','Plotly'],
-    chart: {
-      title: '▸ MODEL METRICS',
-      bars: [{v:68,l:'Recall'},{v:73,l:'Acc.'},{v:83,l:'Drop%'},{v:89,l:'AUC'}],
-    },
+    tags: ['Python','Scikit-learn','Kaplan-Meier','Random Forest','YouTube API'],
   },
   {
     id: 2,
     category: 'Machine Learning',
-    badge: '🌊 Live Deployment · May–Jun 2026',
+    badge: 'Live Deployment · May–Jun 2026',
     title: 'SurfCast SD — Surf Forecast & ML Rating Predictor',
-    links: [{ label:'Live Site ↗', href:'#' }],
+    links: [{ label:'Live Site ↗', href:'https://surfcast-frontend-19545389323.us-west1.run.app/dashboard' }],
     bullets: [
       { b:'Built a live surf forecasting system predicting 7-tier quality ratings for three San Diego breaks, trained on 303,000+ hourly ocean observations across three years.' },
       { b:'Trained and tuned five classifiers with RandomizedSearchCV; selected balanced Random Forest on macro F1 (0.541) over raw accuracy to handle 47% class imbalance — the only model producing meaningful predictions across all 7 tiers.' },
       { b:'Provisioned GCS storage buckets and configured automated hourly Cloud Run pipeline writing live predictions for dashboard consumption.' },
       { b:'Time series EDA confirmed SD daily wind cycle (5 mph morning vs 10.8 mph midday) as a key predictive signal.' },
     ],
-    tags: ['Python','Scikit-learn','GCP','Cloud Run','GCS','Random Forest','Time-Series EDA','Plotly'],
-    chart: {
-      title: '▸ CLASSIFIER COMPARISON',
-      bars: [{v:38,l:'Log.Reg'},{v:44,l:'KNN'},{v:54,l:'RF'},{v:51,l:'XGB'}],
-    },
+    tags: ['Python','Scikit-learn','GCP','Random Forest','Time-Series EDA'],
   },
   {
     id: 3,
     category: 'Machine Learning',
-    badge: '⚔️ DSC80 Final Project · Live Deployment',
+    badge: 'DSC80 Final Project · Live Deployment',
     title: 'Snowball Effect Analysis in Professional LoL',
     links: [
       { label:'Live Site ↗', href:'https://yraclimaco.github.io/lol-snowball-analysis' },
@@ -1007,16 +792,12 @@ const PROJECTS = [
       { b:'Built Random Forest classifier on 15-minute game state achieving 73.6% test accuracy, outperforming a 50% baseline by 24%.' },
       { b:'Deployed full data science lifecycle as interactive GitHub Pages report including EDA, missingness analysis, hypothesis testing, and fairness analysis.' },
     ],
-    tags: ['Python','Pandas','Scikit-learn','Plotly','Random Forest','Hypothesis Testing','GitHub Pages'],
-    chart: {
-      title: '▸ WIN RATE BY GOLD DIFF',
-      bars: [{v:34,l:'−5k'},{v:48,l:'0k'},{v:67,l:'+5k'},{v:81,l:'+10k'}],
-    },
+    tags: ['Python','Scikit-learn','Random Forest','Hypothesis Testing','GitHub Pages'],
   },
   {
     id: 4,
     category: 'Data Engineering',
-    badge: '🌱 Internship Project · CCE',
+    badge: 'Internship Project · CCE',
     title: 'Solar Outreach ETL Pipeline',
     links: [],
     bullets: [
@@ -1024,12 +805,12 @@ const PROJECTS = [
       { b:'Merged commercial property and tax records into a unified outreach table using CTEs, JOINs, CASE WHEN logic, and UNION ALL.' },
       { b:'Surfaced tax-exempt organizations absent from business tax data via LEFT JOIN logic, expanding the addressable outreach pool beyond standard filters.' },
     ],
-    tags: ['PostgreSQL','ETL Pipeline','CTEs','UNION ALL','LEFT JOIN','Data Engineering'],
+    tags: ['PostgreSQL','ETL Pipeline','CTEs','UNION ALL','LEFT JOIN'],
   },
   {
     id: 5,
     category: 'Product Analytics',
-    badge: '🥋 Personal Project · EDA',
+    badge: 'Personal Project · EDA',
     title: 'ADCC World Championship Grappling Analysis',
     links: [{ label:'GitHub ↗', href:'https://github.com/yraclimaco/ADCC-Grappling-Analysis' }],
     bullets: [
@@ -1037,12 +818,12 @@ const PROJECTS = [
       { b:'Investigated submission technique trends over time — finding the Rear Naked Choke remains the highest-percentage finish alongside the rise of specialized leg attacks.' },
       { b:'Analyzed decision patterns by round, revealing championship finals skew toward points-based strategies vs. submission-focused prelims.' },
     ],
-    tags: ['Python','Pandas','Matplotlib','Seaborn','EDA','Jupyter'],
+    tags: ['Python','Pandas','Matplotlib','Seaborn','EDA'],
   },
   {
     id: 6,
     category: 'Machine Learning',
-    badge: '🚕 Regression Model · Sept 2025',
+    badge: 'Regression Model · Sept 2025',
     title: 'Uber & Lyft Fare Prediction Model',
     links: [{ label:'GitHub ↗', href:'https://github.com/yraclimaco' }],
     bullets: [
@@ -1050,7 +831,7 @@ const PROJECTS = [
       { b:'Engineered time-based features identifying Surge Multiplier and Distance as primary cost drivers.' },
       { b:'Performed residual analysis revealing degraded accuracy on Luxury tier rides due to class imbalance.' },
     ],
-    tags: ['Python','Pandas','Scikit-learn','NumPy','Matplotlib','Seaborn','Linear Regression'],
+    tags: ['Python','Scikit-learn','NumPy','Matplotlib','Linear Regression'],
   },
 ];
 
@@ -1109,11 +890,6 @@ function ProjectCard({ project }) {
         <div className="flex flex-wrap gap-1.5">
           {project.tags.map(t => <Tag key={t} label={t}/>)}
         </div>
-
-        {/* Mini chart overlay */}
-        {project.chart && (
-          <MiniChart title={project.chart.title} bars={project.chart.bars}/>
-        )}
       </div>
     </div>
   );
@@ -1160,7 +936,7 @@ function ProjectsTab() {
             </div>
             <div className="pin-wrap">
               <div style={{borderRadius:'14px', background:'#171723', padding:'26px 28px', position:'relative', overflow:'hidden'}}>
-                <div style={{position:'absolute',top:0,left:0,right:0,height:'2px',background:'linear-gradient(90deg, #818cf8 0%, #a78bfa 50%, #fbbf24 100%)'}}/>
+                <div style={{position:'absolute',top:0,left:0,right:0,height:'2px',background:'#818cf8'}}/>
                 <div className="pcard-wrap relative">
                   <div className="flex justify-between items-start gap-3 mb-3">
                     <div>
@@ -1189,7 +965,6 @@ function ProjectsTab() {
                   <div className="flex flex-wrap gap-1.5">
                     {pinnedProject.tags.map(t => <Tag key={t} label={t}/>)}
                   </div>
-                  {pinnedProject.chart && <MiniChart title={pinnedProject.chart.title} bars={pinnedProject.chart.bars}/>}
                 </div>
               </div>
             </div>
@@ -1249,6 +1024,22 @@ function SkillsTab() {
             </div>
           </div>
         ))}
+      </div>
+
+      <div style={{background:'#171723', border:'1px solid #252536', borderRadius:'12px', padding:'20px 22px', marginBottom:'16px', transition:'border-color 0.2s'}}
+           onMouseEnter={e => e.currentTarget.style.borderColor='rgba(129,140,248,0.4)'}
+           onMouseLeave={e => e.currentTarget.style.borderColor='#252536'}>
+        <div className="flex items-center gap-2 mb-3" style={{fontSize:'0.68rem', fontWeight:700, color:'#818cf8', letterSpacing:'0.1em', textTransform:'uppercase'}}>
+          <Icons.Trophy size={12}/> Certifications
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <span className="text-sm transition-all duration-200 cursor-default"
+                style={{fontSize:'0.79rem', background:'#0d0d14', border:'1px solid #252536', color:'#8892a4', padding:'4px 12px', borderRadius:'6px'}}
+                onMouseEnter={e => { e.target.style.borderColor='rgba(129,140,248,0.4)'; e.target.style.color='#e2e8f0'; }}
+                onMouseLeave={e => { e.target.style.borderColor='#252536'; e.target.style.color='#8892a4'; }}>
+            AWS Certified Cloud Practitioner · Aug. 2026
+          </span>
+        </div>
       </div>
 
       <div style={{background:'rgba(129,140,248,0.08)', border:'1px solid rgba(129,140,248,0.2)', borderRadius:'10px', padding:'14px 20px', fontSize:'0.84rem', color:'#8892a4'}}>
@@ -1336,9 +1127,32 @@ function ResumeTab() {
           </div>
         </div>
 
+        {/* Certifications */}
+        <div style={{marginBottom:'26px'}}>
+          {sec('Certifications')}
+          <div className="flex justify-between items-baseline gap-2" style={{marginBottom:'4px'}}>
+            <div style={{fontSize:'0.88rem', fontWeight:700}}>AWS Certified Cloud Practitioner</div>
+            <div style={{fontSize:'0.74rem', color:'#8892a4', whiteSpace:'nowrap', flexShrink:0}}>Aug. 2026</div>
+          </div>
+        </div>
+
         {/* Experience */}
         <div style={{marginBottom:'26px'}}>
           {sec('Experience')}
+          <div style={{marginBottom:'14px'}}>
+            {itemHead('National Security Intern', 'U.S. Department of War', 'i4NS (Innovating for National Security)', 'Aug. 2026 – Dec. 2026')}
+            {bullets([
+              'Selected through a competitive, group-interview process for i4NS (Innovating for National Security), a cohort-based internship program with the U.S. Department of War.',
+              'Applying data science and analytical problem-solving methods to real-world national security challenges alongside a cohort of selected students.',
+            ])}
+          </div>
+          <div style={{marginBottom:'14px'}}>
+            {itemHead('Projects Mentor', 'San Diego, CA', 'Data Science Student Society (DS3)', 'Selected Aug. 2026 · Starts Sept. 2026')}
+            {bullets([
+              'Selected as a Projects Mentor for DS3, leading a student project team building end-to-end data products with cloud deployment on GCP and AWS.',
+              'Role begins late September 2026 with the start of the academic year; contributing to standardizing project quality and procedures across DS3.',
+            ])}
+          </div>
           <div style={{marginBottom:'14px'}}>
             {itemHead('Data Science Intern', 'San Diego, CA', 'Center for Community Energy (CCE)', 'Feb. 2026 – June 2026')}
             {bullets([
@@ -1363,7 +1177,7 @@ function ResumeTab() {
             {
               title: 'SurfCast SD — Surf Forecast & ML Rating Predictor',
               stack: 'Python · Scikit-learn · GCP', date: 'May – June 2026',
-              links: [{ label:'Live Site', href:'#' }],
+              links: [{ label:'Live Site', href:'https://surfcast-frontend-19545389323.us-west1.run.app/dashboard' }],
               bullets: [
                 'Provisioned GCS storage buckets for model artifacts and forecast outputs; configured automated hourly Cloud Run pipeline writing live predictions to GCS for dashboard consumption.',
                 'Built a live surf forecasting system predicting 7-tier quality ratings for three San Diego breaks trained on 303,000+ hourly ocean observations across three years.',
@@ -1452,8 +1266,7 @@ function App() {
   const [activeTab, setActiveTab] = useState('Home');
   const [tabKey, setTabKey]       = useState(0);
 
-  const { canvasRef, heroRef, coords } = useStarfield(activeTab === 'Home');
-  const { lines: termLines, termRef }  = useTerminal();
+  const { canvasRef, heroRef } = useStarfield(activeTab === 'Home');
 
   function setTab(tab) {
     setActiveTab(tab);
@@ -1467,7 +1280,7 @@ function App() {
 
       <main style={{paddingTop: activeTab === 'Home' ? '0' : '0'}}>
         {activeTab === 'Home' && (
-          <HomeTab key={tabKey} canvasRef={canvasRef} heroRef={heroRef} coords={coords} termLines={termLines} termRef={termRef} setTab={setTab}/>
+          <HomeTab key={tabKey} canvasRef={canvasRef} heroRef={heroRef} setTab={setTab}/>
         )}
         {activeTab === 'Experience' && <ExperienceTab key={tabKey}/>}
         {activeTab === 'Projects'   && <ProjectsTab key={tabKey}/>}
